@@ -8,11 +8,16 @@ Personal workspace for learning, experimentation, and development.
 
 ```text
 dev-lab/
+├── .github/
+│   ├── copilot-instructions.md
+│   └── copilot-instructions_jp.md
 ├── learning/
 │   └── ai/
 │       ├── AI_GUIDE.md
 │       └── AI_GUIDE_jp.md
 ├── .gitignore
+├── AGENTS.md
+├── AGENTS_jp.md
 ├── README.md
 └── README_jp.md
 ```
@@ -21,6 +26,11 @@ Create directories only when adding content; do not add placeholders for empty d
 Organize study materials under `learning/` by topic. Add `experiments/`, `projects/`,
 `notes/`, or `scripts/` when needed, and keep setup instructions and validation
 commands alongside each project or experiment.
+
+## Repository Rules
+
+- [Shared rules](AGENTS.md) ([日本語](AGENTS_jp.md))
+- [Copilot instructions](.github/copilot-instructions.md) ([日本語](.github/copilot-instructions_jp.md))
 
 ## AI Learning Guides
 
