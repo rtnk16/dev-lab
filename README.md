@@ -2,6 +2,8 @@
 
 Personal workspace for learning, experimentation, and development.
 
+[日本語](README_jp.md)
+
 ## Directory Structure
 
 ```text
@@ -11,7 +13,8 @@ dev-lab/
 │       ├── AI_GUIDE.md
 │       └── AI_GUIDE_jp.md
 ├── .gitignore
-└── README.md
+├── README.md
+└── README_jp.md
 ```
 
 Create directories only when adding content; do not add placeholders for empty directories.
