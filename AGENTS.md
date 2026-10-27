@@ -42,5 +42,6 @@ This English file is the canonical source of shared repository rules. Keep the e
 ## Git Workflow
 
 - Use English commit messages and group each commit around one purpose.
+- Write pull request titles and descriptions in English.
 - Follow the user's authorized scope for commits, pushes, and pull requests. Do not infer permission to publish from a request to edit files.
 - Push directly to `main` or force-push only when explicitly instructed. Do not reset or overwrite unrelated work.
