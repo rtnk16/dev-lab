@@ -1,0 +1,23 @@
+# Local secrets and environment configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Generated build outputs and dependencies
+build/
+dist/
+node_modules/
+
+# Operating system files
+.DS_Store
+Thumbs.db
