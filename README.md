@@ -36,3 +36,8 @@ commands alongside each project or experiment.
 
 - [English](learning/ai/AI_GUIDE.md)
 - [日本語](learning/ai/AI_GUIDE_jp.md)
+
+## Learning Note Skill
+
+- [Procedure](.agents/skills/learning_note/SKILL.md) ([日本語](.agents/skills/learning_note/SKILL_jp.md))
+- [Instructions vs. skills and usage](learning/ai/instructions_and_skills.md) ([日本語](learning/ai/instructions_and_skills_jp.md))

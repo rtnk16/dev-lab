@@ -35,3 +35,8 @@ dev-lab/
 
 - [英語版](learning/ai/AI_GUIDE.md)
 - [日本語版](learning/ai/AI_GUIDE_jp.md)
+
+## 学習ノートの Skill
+
+- [手順（英語）](.agents/skills/learning_note/SKILL.md)（[日本語](.agents/skills/learning_note/SKILL_jp.md)）
+- [Instructions と Skills の違い・使い方（英語）](learning/ai/instructions_and_skills.md)（[日本語](learning/ai/instructions_and_skills_jp.md)）
