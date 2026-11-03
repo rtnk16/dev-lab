@@ -9,7 +9,16 @@ description: Create or update bilingual learning notes in dev-lab with sourced e
 
 ## When to Use
 
-Use this skill when the user asks to create or update a learning note about a specific topic. Follow the repository's `AGENTS.md`. This procedure does not grant permission to commit, push, publish, install dependencies, or perform consequential external actions.
+- Use this skill when the user asks to create or update a learning note about a specific topic.
+- Follow the repository's `AGENTS.md`.
+- This procedure does not grant permission to commit, push, publish, install dependencies, or perform consequential external actions.
+
+- Prefer concise bullet points and include diagrams that aid understanding. Keep diagram structure and meaning aligned across languages.
+
+```mermaid
+flowchart LR
+    Scope --> Research --> English_Draft --> Example_Validation --> Translation --> Review
+```
 
 ## Procedure
 
