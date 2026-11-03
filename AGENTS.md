@@ -4,11 +4,19 @@
 
 ## Scope and Purpose
 
-This repository is a personal workspace for learning, experimentation, and development. These instructions apply throughout the repository. Follow applicable host instructions and the user's task requirements; report unresolved conflicts rather than silently choosing a rule.
+- This repository is a personal workspace for learning, experimentation, and development.
+- These instructions apply throughout the repository.
+- Follow applicable host instructions and the user's task requirements; report unresolved conflicts rather than silently choosing a rule.
 
-This English file is the canonical source of shared repository rules. Keep the essential rules in `.github/copilot-instructions.md` aligned with it. Japanese translations are reading aids, not separate sources of instructions.
+- This English file is the canonical source of shared repository rules.
+- Keep the essential rules in `.github/copilot-instructions.md` aligned with it.
+- Japanese translations are reading aids, not separate sources of instructions.
 
 ## Documentation and Translation
+
+- Prefer concise bullet points, with one main idea per item. Use short prose only when it improves clarity.
+- Include diagrams where they clarify relationships, structure, or workflows. Prefer Mermaid for flows and ASCII trees for directories; avoid decorative or redundant diagrams.
+- Keep diagrams consistent between English and Japanese versions; translate explanatory labels while preserving identifiers and behavior.
 
 - Write documentation in English first, then add a Japanese translation beside it using the `_jp.md` suffix: `README.md` → `README_jp.md`.
 - Update both language versions in the same commit whenever their content changes.
@@ -43,5 +51,6 @@ This English file is the canonical source of shared repository rules. Keep the e
 
 - Use English commit messages and group each commit around one purpose.
 - Write pull request titles and descriptions in English.
-- Follow the user's authorized scope for commits, pushes, and pull requests. Do not infer permission to publish from a request to edit files.
+- After each completed change, validate it, commit it, and push to the working branch unless the user explicitly requests otherwise. Report the commit SHA and push result.
+- Create pull requests and publish releases or deployments only when requested.
 - Push directly to `main` or force-push only when explicitly instructed. Do not reset or overwrite unrelated work.

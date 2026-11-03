@@ -1,6 +1,6 @@
 # dev-lab
 
-Personal workspace for learning, experimentation, and development.
+- Personal workspace for learning, experimentation, and development.
 
 [日本語](README_jp.md)
 
@@ -22,10 +22,9 @@ dev-lab/
 └── README_jp.md
 ```
 
-Create directories only when adding content; do not add placeholders for empty directories.
-Organize study materials under `learning/` by topic. Add `experiments/`, `projects/`,
-`notes/`, or `scripts/` when needed, and keep setup instructions and validation
-commands alongside each project or experiment.
+- Create directories only when adding content; do not add placeholders for empty directories.
+- Organize study materials under `learning/` by topic.
+- Add `experiments/`, `projects/`, `notes/`, or `scripts/` when needed, and keep setup instructions and validation commands alongside each project or experiment.
 
 ## Repository Rules
 
