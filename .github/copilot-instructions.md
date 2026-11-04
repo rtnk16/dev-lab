@@ -1,5 +1,11 @@
 # Copilot Repository Instructions
 
+- Write for the intended reader using plain language. Introduce unfamiliar terms with a short definition before using them in detailed explanations.
+- For conceptual learning materials, prefer “short explanation → diagram → concrete example” for each major topic. Use a consistent example across related sections and move advanced details into optional or collapsible supplements when helpful.
+- Use diagrams actively to explain roles, relationships, information flow, execution locations, and boundaries. Split complex diagrams into focused views; do not impose a fixed diagram count or add decorative repetition.
+- Prefer Mermaid for editable flows and ASCII trees for directories. Add PNG illustrations when they improve readability, sharing, or compatibility with viewers that cannot render Mermaid. Keep editable sources or a reproducible generation script alongside the material and document generation prerequisites and commands.
+- Give diagrams descriptive labels and alt text, explain how to read them, and check text legibility, arrow direction, clipping, and consistency with the prose. Keep diagrams aligned between languages; report rendering checks that were not run.
+
 - Prefer concise bullet points with one main idea per item. Add useful diagrams for relationships, structures, and workflows; prefer Mermaid or ASCII trees. Avoid redundant diagrams. Keep translated diagrams aligned, preserving identifiers and behavior.
 
 [日本語](copilot-instructions_jp.md)
