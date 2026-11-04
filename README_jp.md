@@ -35,7 +35,7 @@ dev-lab/
 
 - [英語版](learning/ai/AI_GUIDE.md)
 - [日本語版](learning/ai/AI_GUIDE_jp.md)
-- [AIエージェントの概念・構成要素・実行環境](learning/ai/agent_architecture_jp.md)（[英語](learning/ai/agent_architecture.md)）
+- [図でわかるAIエージェントの仕組み](learning/ai/agent_architecture_jp.md)（[英語](learning/ai/agent_architecture.md)）— PNGを含む8点の図で解説します。
 
 ## 学習ノートの Skill
 

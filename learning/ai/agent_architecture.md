@@ -1,221 +1,201 @@
-# AI Agents: Concepts, Components, and Execution Environments
+# A Visual Guide to AI Agents
 
 [日本語](agent_architecture_jp.md)
 
-## 1. Goal and scope
+**Follow one request — “Fix this bug” — to understand who does what, what information they use, and where the work runs.**
 
-- For readers who have used an AI chat application and want to understand what actually runs when an agent works.
-- Follow one request from model input to tool execution, and distinguish LLMs, harnesses, context, tokens, MCP, and execution environments.
-- This describes a common architecture, not the private implementation of a particular product. “Agent” and “harness” have varying definitions; the boundaries below are a practical working model.
-- For instructions, skills, and daily usage, see the [practical guide](AI_GUIDE.md) and [instructions and skills](instructions_and_skills.md).
+- Start with sections 1–3 for the main idea. Continue through section 8 to follow the whole task.
+- Each section starts with a short explanation and a diagram. Implementation details are folded into the appendix.
+- There are eight diagrams: four PNG illustrations and four Mermaid diagrams. Click a PNG to inspect it at full size.
+- This is a common architecture, not a description of any product's private implementation. The boundaries of “agent” and “harness” vary by product.
 
-## 2. The whole system
+## 1. Start with three roles
 
-> An LLM generates a response or a request for an operation. The surrounding software executes permitted operations and returns the results. Repeating this cycle lets the system pursue a goal.
+**The LLM generates the next step. Tools perform operations. The harness manages the exchange. Together, they make up the agent system described here.**
 
-| Concept | Role | What it is in practice | Example |
-| --- | --- | --- | --- |
-| LLM | Interpret input and generate output | Model parameters and an inference service/process | Generate a patch or a structured tool call |
-| Agent | Pursue a goal over multiple steps | A system combining a model, tools, state, and control logic | Investigate a bug, change code, run tests |
-| Harness | Manage how the model works in its host | Software for context assembly, tool dispatch, state, limits, and permissions | Execute a requested test and feed back its output |
-| Context | Supply information for the current model call | Messages, tool definitions, selected documents, images, and results | The request, relevant code, and a failing test log |
-| Token | Represent model input/output in units | Tokenizer-dependent IDs; accounting varies for other modalities | Units used for input limits and usage accounting |
-| Tool | Perform a defined operation | A function, process, service, or API exposed to the host | Read a file or search an issue tracker |
-| MCP | Standardize a connection to capabilities and data | A protocol implemented by hosts, clients, and servers | Connect an AI application to an issue-search server |
-| Execution environment | Provide a place where operations run | A local OS, container, VM, browser session, or remote service | Run `pytest` in a cloud workspace |
+![Figure 1. A user gives a goal to an agent system. Its harness exchanges information with the LLM and requests permitted tool operations.](assets/agent_architecture/overview_en.png)
+
+**Read the numbered arrows:** give information to the LLM → receive an operation request → run the permitted operation → return its result. Repeat as needed.
+
+| Name | Plain explanation | In “Fix this bug” |
+| --- | --- | --- |
+| LLM | Generates an answer or the next operation request | “Read this function first” |
+| Harness | Manages information, execution, and progress | Reads the requested file and returns its contents |
+| Tool | Performs a defined operation | Reads, edits, or runs a test |
+| Agent | The system pursuing the goal over multiple steps | Investigates, edits, verifies, and reports |
+
+- The **host** is the application you use, such as a CLI or chat application. Harness functions live in that application and its supporting software.
+- Context, tokens, MCP, and execution environments describe the information, units, connections, and locations used by these roles. We add them one at a time below.
+
+## 2. LLM: generate an answer or a request
+
+**An LLM is a model that generates output from the information it receives.** LLM stands for *large language model*.
+
+```mermaid
+flowchart LR
+    C["Input: request and relevant code"] --> L["LLM: generate output"]
+    L --> A["Answer: here is a suggested fix"]
+    L --> T["Operation request: read this file"]
+```
+
+**Example:** the model sees a division function and generates “Raise an exception when the denominator is zero.” That is a proposed fix. A tool must edit the actual file, and a test must check the behavior.
+
+- In practice, the model consists of learned parameters used by an inference process or service.
+- **Training** changes the parameters. **Inference** uses them to process a request. Reading an attached document normally supplies input for inference.
+- Model output can be wrong. The current contents of a repository or the outcome of a test need evidence from the relevant system.
+
+## 3. Harness: keep the work moving
+
+**A harness is the software that makes repeated model calls and tool operations work together.** Think of it as the work coordinator; it also applies execution limits and permissions.
 
 ```mermaid
 flowchart TD
-    U["User: goal"] --> H["Host / harness"]
-    H --> C["Assemble context"]
-    C --> L["LLM inference"]
-    L --> D["Text or operation request"]
-    D --> H
-    H --> T["Permission check and tool dispatch"]
-    T --> E["Local / cloud execution environment"]
-    T --> MC["MCP client"]
-    MC --> MS["MCP server"]
-    MS --> X["External API / data"]
-    E --> R["Tool result"]
-    X --> R
-    R --> H
-    H --> A["Answer / artifact"]
+    C["Assemble the input"] --> L["Call the LLM"]
+    L --> Q{"Operation requested?"}
+    Q -->|Yes| P["Check arguments and permissions"]
+    P --> T["Run the tool or record why it cannot run"]
+    T --> R["Add the result to the next input"]
+    R --> C
+    Q -->|No| A["Return the answer; assess completion with evidence"]
 ```
 
-- The loop spanning the model and surrounding software constitutes the agent here. An agent is not necessarily a separate process named `agent`.
-- Model inference, command execution, and MCP servers may run on three different machines.
-- A normal function/API integration can provide tools without MCP.
+**Example:** the model requests `pytest -q`. The harness checks that the command is allowed, runs it through the shell tool, waits for completion, and returns the exit code and log. The model can then decide whether to adjust the fix.
 
-## 3. LLM: the inference component
+- A **tool call** is a request to run something. Its **result** tells us what actually happened.
+- The harness manages context selection, running processes, progress, retries, and stopping conditions. These responsibilities may be split across an application, SDK, and infrastructure.
+- The same LLM can behave differently with different tools, input selection, or error handling.
+- The simplified diagram omits cancellation and time/budget limits; real systems need those ways to stop too.
 
-- A large language model uses learned parameters to generate output conditioned on its input. Text generation is commonly described as predicting successive tokens; some models also accept or generate other modalities.
-- **Training** changes model parameters. **Inference** uses those parameters to process a request. Attaching a document normally changes the input, not the parameters.
-- An API request usually includes instructions, messages, and available tool descriptions. Output may contain text or a structured tool call supported by that API.
-- A bare model does not automatically read your disk, browse the web, or possess your service credentials. The host must expose and execute those capabilities.
-- Responses can be plausible but wrong. Training knowledge does not establish the current state of a repository, account, or website.
+## 4. Context: the information on the desk right now
 
-**Example:** Given a failing division function, the model can suggest raising an exception for a zero denominator. Whether that suggestion works requires inspecting the actual code and running an appropriate check in the execution environment.
+**Context is the information available for this model call.** A useful analogy is the material placed on a desk for the current task.
 
-## 4. Agent and harness: goal pursuit and control
+![Figure 4. The harness selects relevant material from conversation, files, and external sources, then supplies it to the LLM as current context.](assets/agent_architecture/context_en.png)
 
-- An agent chooses actions toward a goal, observes results, and adjusts. The host can also use a fixed workflow, such as always running a formatter after editing.
-- The harness supplies the machinery that makes this possible. Some frameworks call similar components a runtime, runner, executor, or orchestrator; these terms overlap rather than forming a universal standard.
+**Example:** for a division bug, useful context includes the requirement, the division function, and the failing test. An unrelated image folder probably does not help.
 
-| Harness responsibility | Concrete behavior |
+- A file being in the workspace does not mean the model has read it. Its contents must be retrieved and supplied.
+- The visible chat history may differ from the exact input assembled by the host.
+- Long conversations may be shortened or summarized. Important details can be lost, so keep requirements and unresolved decisions explicit.
+
+| Easily confused terms | Difference |
 | --- | --- |
-| Assemble context | Select messages, instructions, tool schemas, and file excerpts |
-| Invoke the model | Send a request, process output, and track usage |
-| Dispatch tools | Validate a tool name and its arguments, then route the request |
-| Enforce boundaries | Apply allowlists, sandbox policy, and required approval |
-| Manage progress | Preserve tool-call IDs, execution state, and intermediate results |
-| Handle long work | Poll a running process, retry appropriate failures, summarize older context |
-| Stop | End on completion, a step/budget limit, cancellation, or an unrecoverable failure |
+| Model knowledge | Patterns stored in parameters through training |
+| Context | Information supplied for the current inference call |
+| Memory | Selected information saved by the application and retrieved later |
 
-- These duties can be distributed across application code, an SDK, and infrastructure. A harness is more than a system prompt.
-- The same LLM can perform differently under different harnesses because tools, information selection, error handling, and limits differ.
-- More autonomy does not imply more access. Available permissions and credentials determine what can actually run.
-- A sub-agent is another delegated model-driven work loop. Its model, context, tools, and filesystem may be shared or isolated; parallel work adds coordination and usage costs.
+**RAG** means searching for relevant material and adding it to the input before generating a response. For example, search a specification and supply the matching paragraphs as context.
 
-**Conceptual pseudocode — not a runnable SDK example:**
+## 5. Tokens: the units used to count input and output
 
-```text
-state = initialize(goal, instructions, tool_catalog)
-for step in range(step_limit):
-    context = select_context(state, input_budget)
-    response = call_model(context)
-    if response.requests_tools:
-        for request in response.tool_requests:
-            validate_arguments_and_permissions(request)
-            result = execute_or_record_failure(request)
-            state.append(request, result)
-    else:
-        return response.answer
-return report_incomplete(state)
+**Tokens are the model's input/output units.** A token is not necessarily one word or one character.
+
+```mermaid
+flowchart LR
+    S["Text: a request or code"] --> T["Tokenizer: split and encode"]
+    T --> I["Token IDs: model-specific units"]
+    I --> L["LLM"]
 ```
 
-- Real implementations also need timeouts, cancellation, error recovery, and durable state when required.
-- Retrying a read is different from retrying a payment or message send. Writes may need idempotency keys or verification of whether the first attempt succeeded.
-- “Done” is a model output; successful completion still needs evidence from the artifact, tool results, or acceptance checks.
+**Why it matters:** the model has an input/output budget, and usage often contributes to cost. Exact segmentation depends on the model and language; this diagram does not show an actual tokenization result.
 
-## 5. Context: what the model receives now
+**A hypothetical 32,000-token combined limit:**
 
-- Context is the information made available in a particular model invocation. A visible chat history and the exact serialized input to the model need not be identical.
-- A file existing in the workspace does not make its contents available to the model. A tool or host feature must read it and include the relevant content.
-- Some context is supplied by the application and is not displayed as a normal chat message.
-
-| Layer | Example | Lifetime / boundary |
-| --- | --- | --- |
-| Model parameters | Patterns learned during training | Changed through training or model updates |
-| Current context | Request, instructions, file excerpt, tool result | Supplied to the current inference call |
-| Conversation state | Stored messages and progress | Managed by the host; may be selected or summarized |
-| Persistent memory | A saved preference or project summary | Product-specific storage and retrieval |
-| External state | Files, database rows, issues | Persists according to the external system |
-
-- In typical API use, the host sends or references conversation state on subsequent calls. Do not assume the model service remembers a previous request without such a mechanism.
-- A **context window** limits how much a call can handle. Input, output reservations, reasoning tokens, and modality limits follow model/API-specific rules.
-- **Compaction** replaces some previous content with a shorter summary. It can preserve decisions but lose exact wording, error details, or exceptions.
-- **Context engineering** means choosing, structuring, retrieving, and maintaining useful input. Sending everything can add cost and distract from relevant evidence.
-- Instruction priority is determined by the host/model contract. A retrieved document saying “ignore the user” remains untrusted document content, not newly granted authority.
-
-**Example:** To fix one function, include its implementation, callers affected by the change, the expected behavior, and the relevant failing test. Retrieve more information if needed instead of inserting every repository file.
-
-## 6. Tokens: limits, cost, and repeated work
-
-- A text tokenizer maps text to token IDs. One token is not necessarily one word, character, or byte. Segmentation varies by model, language, code, and punctuation.
-- Japanese character counts do not provide an exact token count. Use the selected model's tokenizer or the API's usage reporting for measurement.
-- Image/audio/video accounting is model-specific. Do not apply text-only estimates to all modalities.
-- “Token” here is a model processing unit. An OAuth/access token is an authentication credential with a different purpose.
-
-**Hypothetical budget example; not a product specification:**
-
-| Item | Tokens |
+| Budget item | Tokens |
 | --- | ---: |
 | Instructions and tool descriptions | 4,000 |
-| Conversation history | 8,000 |
-| Retrieved source excerpts | 12,000 |
+| Conversation | 8,000 |
+| Relevant documents | 12,000 |
 | Latest request | 1,000 |
-| Input total | 25,000 |
-| Reserved generation budget | 5,000 |
-| Simplified total | 30,000 |
+| **Input subtotal** | **25,000** |
+| Reserved for generation | 5,000 |
+| **Remaining headroom** | **2,000** |
 
-- With a hypothetical 32,000-token combined limit, this leaves 2,000 tokens under this simplified accounting. Actual APIs can impose separate output and other constraints.
-- One user request can cause many model calls. Tool results enlarge later inputs, and earlier material may be processed repeatedly. A 25,000-token context is not necessarily 25,000 tokens of total task usage.
-- Approximate text cost: sum over calls of `(billable input tokens × input rate) + (billable output tokens × output rate)`, with the provider's unit conversion and cache/reasoning rules. Tool charges and compute can be additional.
-- Caching may reduce cost or latency under supported conditions; it does not make context unlimited or guarantee a correct answer.
-- Useful reductions include targeted search, selected line ranges, concise tool output, and summaries that retain source paths and unresolved decisions.
+- A **context window** is a limit on how much a call can handle. This is a simplified budget; actual output limits and reasoning-token rules depend on the API.
+- One user request may cause several model calls. Earlier content and new tool results can be processed on later calls, increasing total usage.
+- Retrieve relevant excerpts and return concise logs to use the budget well. More input is useful when it adds needed evidence.
+- An **access token** used to log in to a service is a different meaning of “token.”
 
-## 7. Tools, function calling, and MCP
+## 6. MCP: a shared way to connect to capabilities
 
-### Tool execution boundary
+**MCP is a protocol for connecting an AI application to servers exposing tools and data.** Its full name is *Model Context Protocol*.
 
-- Function calling lets a model emit a tool name and structured arguments. The application validates and executes them, then returns a result associated with that call.
-- A generated call is an operation request, not proof that the operation ran. Check success/failure and actual results.
+![Figure 6. An MCP client inside the host connects to an MCP server, which calls an issue service API and returns results.](assets/agent_architecture/mcp_en.png)
 
-**Illustrative normalized call; not a universal API wire format:**
+**Follow a search request:**
 
-```json
-{
-  "name": "search_issues",
-  "arguments": {"query": "division by zero", "limit": 3}
-}
+1. The LLM generates a request to search issues related to the bug.
+2. The host checks the request; its MCP client sends it to the configured server.
+3. The server queries the issue service using the available authorization.
+4. Search results return to the host and can be supplied to the model as context.
+
+| Part | Role |
+| --- | --- |
+| Host | The AI application using the capabilities |
+| MCP client | Manages a connection from the host |
+| MCP server | Exposes capabilities and handles requests |
+| Service API | The issue/document/database system's own interface |
+
+- Tools can also use direct functions or APIs. A local file edit does not require MCP.
+- Connecting a server makes its capabilities available; it does not automatically load all its data or train the model on it.
+- Access still depends on authentication, account permissions, and network restrictions. Creating an issue requires the appropriate write access in addition to search capability.
+
+## 7. Execution environment: where operations really run
+
+**The execution environment is the machine or session where a tool performs its operation.** The model and the test command can run in different places.
+
+![Figure 7. Example deployment: a local CLI manages requests to a model provider and commands in a separate cloud workspace.](assets/agent_architecture/runtime_en.png)
+
+**This is one example deployment:**
+
+- Your PC runs a CLI, the command-line application receiving your request.
+- The provider's server runs model inference.
+- A cloud workspace runs file operations and `pytest`. A **container** is one possible way to provide an isolated process environment there.
+
+Other products may run tools on your PC, use a VM, or run the whole host in the cloud. An MCP server can also be local or remote. The diagram shows locations, not a universal deployment.
+
+| Check | Plain question |
+| --- | --- |
+| Working directory | Which folder does a relative path refer to? |
+| Filesystem permissions | Which files can this tool read or change? |
+| Runtime and dependencies | Are Python and `pytest` installed here? |
+| Network | Can this environment reach the needed service? |
+| Account | Which identity is used by this CLI, browser, or MCP connection? |
+| Persistence | Will these files survive the end of the session? |
+
+- A **sandbox** enforces operation restrictions through the OS or infrastructure. Its restrictions are stronger than a prompt asking the model to avoid a path.
+- `/workspace/project` in a remote environment is not automatically a folder on your PC.
+- If source excerpts are sent to a remote model, those excerpts leave the workspace. Container isolation alone does not keep inference inputs local.
+
+## 8. Put it together: “Fix division by zero”
+
+**Assumed example, not an execution record:** `/workspace/calculator` contains a Python project with `pytest` installed. Zero division currently returns `0`; the requested behavior is to raise `ValueError`. The user requests a fix and local verification, without publishing it.
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant H as Harness
+    participant L as LLM
+    participant T as Tool / workspace
+    U->>H: Fix zero division and verify it
+    H->>L: Request, instructions, and tool definitions
+    L->>H: Read the function and tests
+    H->>T: Run the permitted read
+    T-->>H: Relevant code
+    H->>L: Add code to context
+    L->>H: Apply this fix
+    H->>T: Edit the file
+    T-->>H: Edit result
+    H->>L: Return edit result
+    L->>H: Run pytest -q
+    H->>T: Execute tests
+    T-->>H: Exit code and log
+    H->>L: Return test result
+    L-->>H: Explain the change and observed result
+    H-->>U: Answer and artifact links
 ```
 
-### MCP architecture
-
-- Model Context Protocol standardizes communication between an AI application and servers exposing capabilities and data. It is neither a model nor an autonomous agent.
-- The **host** is the AI application. An **MCP client** inside the host maintains a connection to an **MCP server**. The server can expose an existing API, a local program, or data sources.
-- Common transports include local **stdio** and remote **Streamable HTTP**. Supported transports, authorization, and features depend on protocol version and implementation.
-
-| Server primitive | Purpose | Example |
-| --- | --- | --- |
-| Tools | Expose callable operations | Search issues or create a ticket |
-| Resources | Expose URI-addressed content | Read a document or a schema |
-| Prompts | Expose reusable message templates | Prepare a review prompt |
-
-- Servers need not implement all three. Hosts also vary in what they expose to the model or user.
-- MCP discovery makes capabilities available to a host; it does not mean all remote data is inserted into every context.
-- A typical path is `LLM tool request → host permission check → MCP client → MCP server → service API → result → model context`.
-- MCP does not itself grant account access or bypass filesystem/network restrictions. Server authentication and downstream service credentials can be separate.
-- Connecting an MCP server does not train the model on its contents. A server may run locally even when the model runs remotely.
-
-**Example:** An issue-search MCP server queries an authorized project and returns three issue excerpts with IDs. The host passes selected results to the model. Creating an issue is a separate operation requiring the applicable write permission.
-
-## 8. Where things actually run
-
-| Component | Possible location | What to inspect |
-| --- | --- | --- |
-| UI / host / harness | Desktop application, CLI, or cloud backend | Active session, settings, loaded instructions |
-| Model inference | Provider service or local model process | Model identifier, endpoint, input limits |
-| Shell / code tools | Local machine, container, VM, or cloud workspace | Working directory, installed runtimes, filesystem rights |
-| Browser tool | Local or remote browser session | Login session, network reachability, downloads |
-| MCP server | Local child process or remote service | Transport, supported operations, authentication |
-| Data service | Repository host, document service, or database | Account, project, access scope |
-
-- **Working directory:** the starting location for relative paths. `/workspace/project` in a remote container is not automatically a folder on your laptop.
-- **Filesystem boundary:** which paths can be read/written, whether they are shared, and whether they persist after the session ends.
-- **Process boundary:** commands run as actual OS processes. Background jobs can outlive a tool call; a returned process ID may require polling before completion is known.
-- **Network boundary:** a machine may have internet access, allowlisted hosts, or no outbound access. A connected model API does not imply shell access to every website.
-- **Identity boundary:** the browser, CLI, and MCP server may use different accounts and credentials. A successful browser login does not establish CLI access.
-- **Sandbox:** OS/infrastructure restrictions on operations. A prompt asking the model to avoid certain paths is not equivalent to enforced filesystem isolation. Containers and VMs also have different isolation properties.
-- **Persistence:** workspace files, chat context, and model-service caches have different lifetimes. Confirm artifact storage rather than assuming everything survives.
-
-**Example deployment:** A laptop CLI sends inference requests to a model provider, runs tests inside a local container, and connects to a remote issue-search MCP server. Source excerpts sent for inference leave the container; container isolation alone does not keep model inputs local.
-
-## 9. End-to-end example: fix a division bug
-
-**Assumed scenario, not an observed execution:** A Python project already exists in `/workspace/calculator`; `pytest` is installed. Dividing by zero currently returns `0`, but the requirement is to raise `ValueError`. The user requests a fix and local verification, without publishing it.
-
-| Step | Model's role | Harness / tool's role | Evidence or state |
-| --- | --- | --- | --- |
-| 1. Receive request | Interpret the goal and criteria | Supply request, instructions, and tool definitions | Initial context |
-| 2. Inspect project | Request relevant files and tests | Read permitted paths in the workspace | Code and test excerpts enter context |
-| 3. Inspect issue if useful | Request issue search | Call the configured MCP service | Issue IDs and excerpts; network/permission errors if unsuccessful |
-| 4. Propose a change | Generate a focused edit | Apply the edit to the actual file | Filesystem diff |
-| 5. Verify | Request `pytest -q` in the project | Run the OS process and collect status/output | Exit code and test results |
-| 6. Respond to failure | Interpret a traceback and adjust | Execute another permitted edit/check | Updated context and artifacts |
-| 7. Finish | Explain the change and verification | Return the final response/artifact links | Actual diff and observed results |
-
-**Expected conceptual diff:**
+**Proposed change:**
 
 ```diff
  def divide(a, b):
@@ -225,54 +205,107 @@ return report_incomplete(state)
      return a / b
 ```
 
-- The meaningful check covers both zero division raising the expected exception and ordinary division retaining its behavior.
-- A green test run is evidence for the tests executed, not proof that all possible inputs are correct. The test must agree with the requested behavior.
-- The code tool performs the edit; the model supplies its requested content. `pytest` executes in the project environment, not inside the model's parameters.
-- The MCP server supplies issue information; it is not needed for a purely local edit. Each repeat of the loop consumes time and potentially additional model tokens.
-- If execution is unavailable, report “change proposed; tests not run” rather than claiming success.
+- Check both the zero-denominator exception and ordinary division. A green test run supports the cases actually tested.
+- If tests fail, pass their output back to the model and repeat the edit/check loop. If they cannot run, report that verification is incomplete.
+- Issue search through MCP can be added if needed; this local fix does not require it.
+- **LLM generates → harness coordinates → tools execute → results become context.** This is the same cycle as Figure 1.
 
-## 10. RAG, memory, skills, and workflows
+## 9. Related terms at a glance
 
-| Related concept | How it fits | Example |
+| Term | Plain explanation | Example |
 | --- | --- | --- |
-| Prompt | Input expressing the current request | “Fix zero division and verify it” |
-| Instructions | Rules applied by the host within their scope | Project style and required checks |
-| Skill | Reusable procedure and optional supporting files | Bug investigation checklist |
-| RAG | Retrieve relevant material and add it to generation context | Search specifications before answering |
-| Memory | Store and retrieve selected information across steps/sessions | Saved project decisions |
-| Workflow | Predetermined ordering or branching of steps | Run lint, then tests, then assemble a report |
-| Evals | Assess behavior over representative tasks | Measure successful fixes and regressions |
+| Prompt | The current request | “Fix division by zero” |
+| Instructions | Rules applying within a defined scope | Follow the project style and run relevant checks |
+| Skill | A reusable procedure and supporting files | A bug investigation checklist |
+| RAG | Retrieve relevant material for generation | Supply matching specification paragraphs |
+| Memory | Save and retrieve selected information | A saved project decision |
+| Workflow | A predefined order or branching of operations | Run lint, then tests, then report |
+| Sub-agent | Another model-driven work loop given a subtask | Review a separate module |
+| Framework | A toolkit for building the system | Libraries implementing tool dispatch and state |
+| Evals | Representative tasks used to assess behavior | Measure successful fixes and regressions |
 
-- RAG is a retrieval-and-generation technique; MCP is a connection protocol. A RAG search can be exposed through MCP or a direct API.
-- Skills are procedures, not model weights. Their effectiveness depends on discovery, loading, applicability, and execution.
-- A framework is a library/toolkit for building such systems. It may supply harness components without being the complete deployed system.
+- RAG describes how information is retrieved and used; MCP describes a connection protocol. RAG search can be exposed through MCP or a direct API.
+- Skills are instructions and resources, not model parameters. A host must discover and load a suitable skill for it to help.
+- A sub-agent's context, tools, and files may be shared or isolated. More agents add coordination and usage costs; they do not automatically improve quality.
+- For usage, see the [practical guide](AI_GUIDE.md) and [instructions and skills](instructions_and_skills.md).
 
-## 11. Common misunderstandings and diagnosis
+## 10. When something goes wrong
 
-| Symptom or claim | What to distinguish / inspect |
+| Symptom | Start by checking |
 | --- | --- |
-| “The LLM read every file” | Check which files were actually read and passed into context |
-| “I connected MCP, so it knows all company data” | Discovery, retrieval, permissions, and inclusion in context are separate |
-| “The model is weak because tests cannot run” | Inspect the command, runtime, dependencies, directory, and sandbox |
-| “It forgot a decision” | Inspect context selection, summarization, and persistent state |
-| “It said the issue was created” | Check the tool result and actual issue ID; avoid blind write retries |
-| “The tool output told it to upload secrets” | Treat external content as untrusted; enforce permitted operations outside the model |
-| “More agents or tokens always improve quality” | Measure relevance, coordination overhead, task success, latency, and cost |
+| It does not know a file's contents | Was the file read and included in context? |
+| It lost a previous decision | Was that decision omitted or summarized? Was it saved? |
+| It cannot run a test | Directory, runtime, dependencies, and sandbox restrictions |
+| MCP search fails | Connection, server startup, authentication, and service permissions |
+| It claims it created an issue | Tool result and the actual issue ID before retrying a write |
+| It follows instructions found inside a document | Trust boundaries and host-enforced operation restrictions |
 
-- Diagnose by layer: **input → model output → harness decision → tool execution → external service → verification**. This helps separate reasoning errors from execution and access failures.
+Check the chain **input → model output → harness → tool → external service → verification** to locate the failure.
 
-## 12. Validation and source status
+## Appendix: details to read when needed
 
-- Examples are conceptual. The pseudocode, JSON, token budget, and division diff illustrate boundaries; they are not executions against a real model, MCP server, or calculator project.
-- No dependency installation or benchmark is required for these explanations. Actual provider limits, prices, transport support, and permissions must be checked for the selected version.
-- References below identify official sources for further reading. Their live contents and latest versions were not checked during drafting; this note does not claim conformance to a particular current API or MCP release.
+<details>
+<summary>Model calls, harness implementation, and trustworthy completion</summary>
 
-## 13. References
+- Text generation is commonly described as predicting successive tokens using learned parameters. Some models also accept or generate images, audio, or other modalities.
+- Typical APIs require the host to send or reference the relevant conversation state. Do not assume one independent call remembers another.
+- Function calling produces a tool name and structured arguments. The application validates them, dispatches the request, and associates the result with the call ID. A generated request alone is not proof of execution.
+- A harness also needs timeouts, cancellation, process polling, appropriate retries, durable state where needed, and limits on steps and budget. A background process ID does not mean a command has finished.
+- Retrying a read differs from retrying a payment or message send. For writes, use idempotency controls or check whether the first attempt succeeded.
+- Harness, runtime, runner, executor, and orchestrator are overlapping implementation terms. There is no universal boundary between them, and a harness is more than a system prompt.
+- A completion claim needs evidence from artifacts and checks. Output with the right format can still contain wrong facts.
 
-- [OpenAI: Key concepts](https://platform.openai.com/docs/concepts) — models, tokens, and usage concepts.
-- [OpenAI: Function calling](https://platform.openai.com/docs/guides/function-calling) — the model/application tool-call boundary.
-- [OpenAI: Conversation state](https://platform.openai.com/docs/guides/conversation-state) — state across inference calls.
-- [MCP: Architecture](https://modelcontextprotocol.io/docs/learn/architecture) — hosts, clients, servers, and primitives.
-- [MCP specification](https://modelcontextprotocol.io/specification) — versioned protocol and transport details.
-- [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) — workflows and agent systems.
-- [Docker: What is a container?](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/) — process isolation and execution environments.
+</details>
+
+<details>
+<summary>Context limits, security, and cost accounting</summary>
+
+- Stored conversation, persistent memory, external files, and current context have different lifetimes. Host selection determines what is supplied to each call.
+- Compaction replaces older content with a summary. It can preserve decisions while losing exact error details or exceptions. Keep source paths and unresolved requirements in handoff notes.
+- Context engineering means selecting, structuring, retrieving, and maintaining useful input. Instruction priority follows the host/model contract, not whichever text appears last.
+- Retrieved documents and tool results can contain prompt injection: untrusted text trying to redirect the system. Their contents do not grant new authority. Enforce allowed operations outside the model too.
+- Exact text token counts require the chosen tokenizer or API usage reporting. Japanese character counts and image/audio/video sizes do not provide universal token conversions.
+- Approximate text cost sums billable input and output tokens multiplied by their respective rates across all calls, with the provider's unit conversion, cache, and reasoning-token rules. Tools and compute can cost extra.
+- Caching can reduce cost or latency under supported conditions. It does not remove context limits or establish correctness.
+- Containers and VMs have different isolation properties. Browser, CLI, and MCP connections can use different identities; a browser login does not establish CLI authorization.
+
+</details>
+
+<details>
+<summary>MCP capabilities and communication</summary>
+
+| Server primitive | Purpose | Example |
+| --- | --- | --- |
+| Tools | Callable operations | Search issues or create a ticket |
+| Resources | URI-addressed content | A document or schema |
+| Prompts | Reusable message templates | A review prompt |
+
+- Servers need not implement all three; hosts differ in what they support and expose.
+- Common transports include local **stdio** and remote **Streamable HTTP**. Support and authorization follow the selected protocol version and implementation.
+- Server authentication and downstream service credentials can be separate. MCP does not bypass network or filesystem restrictions.
+- Capability discovery, data retrieval, and inclusion in model context are separate steps. A connected server does not imply all its data has been read.
+
+</details>
+
+## Diagram sources and validation
+
+- PNGs are generated from [this script](scripts/render_agent_diagrams.py). Prerequisites: Python 3, Graphviz's `dot` on `PATH`, and Noto Sans CJK JP / DejaVu Sans fonts for matching typography. No third-party Python package is needed.
+- From the repository root, run:
+
+```bash
+python learning/ai/scripts/render_agent_diagrams.py
+```
+
+- Expected output: four English and four Japanese PNGs under `learning/ai/assets/agent_architecture/`. The same layouts and relationships are used in both languages.
+- The PNG generation command was run. Other code, the budget, and the conversation are conceptual examples, not an execution against a model, MCP server, or calculator project.
+- Documentation checks cover local links, code fences, and matching bilingual diagram structures. PNGs were visually inspected; Mermaid rendering was not run in this environment.
+- Provider limits, prices, permissions, and transport support must be checked for the chosen product/version. The live reference contents and latest versions below were not checked during drafting.
+
+## References
+
+- [OpenAI: Key concepts](https://platform.openai.com/docs/concepts) — models and tokens.
+- [OpenAI: Function calling](https://platform.openai.com/docs/guides/function-calling) — the model/application tool boundary.
+- [OpenAI: Conversation state](https://platform.openai.com/docs/guides/conversation-state) — state across calls.
+- [MCP: Architecture](https://modelcontextprotocol.io/docs/learn/architecture) and [specification](https://modelcontextprotocol.io/specification) — roles, capabilities, and versioned transport details.
+- [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) — workflows and agents.
+- [Docker: What is a container?](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/) — containers and isolation.
