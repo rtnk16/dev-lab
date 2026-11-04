@@ -58,5 +58,5 @@
 - Use English commit messages and group each commit around one purpose.
 - Write pull request titles and descriptions in English.
 - After each completed change, validate it, commit it, and push to the working branch unless the user explicitly requests otherwise. Report the commit SHA and push result.
-- Create pull requests and publish releases or deployments only when requested.
+- After validation, commit, and a successful push, check for an open pull request for the working branch. If none exists and there are changes to propose, create a draft pull request targeting the intended integration branch (the repository default unless specified otherwise). If one exists, update its title and description to reflect the final changes and validation, preserving relevant existing context and review state. Avoid duplicate pull requests. Report the PR URL. Do not merge, enable auto-merge, publish releases, or deploy unless explicitly requested. If authentication or permissions prevent PR creation or updates, report the blocker without claiming success.
 - Push directly to `main` or force-push only when explicitly instructed. Do not reset or overwrite unrelated work.
