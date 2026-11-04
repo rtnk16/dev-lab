@@ -14,7 +14,11 @@ dev-lab/
 ├── learning/
 │   └── ai/
 │       ├── AI_GUIDE.md
-│       └── AI_GUIDE_jp.md
+│       ├── AI_GUIDE_jp.md
+│       ├── agent_architecture.md
+│       ├── agent_architecture_jp.md
+│       ├── local_llm_environment.md
+│       └── local_llm_environment_jp.md
 ├── .gitignore
 ├── AGENTS.md
 ├── AGENTS_jp.md
@@ -33,8 +37,8 @@ dev-lab/
 
 ## AI Learning Guides
 
-- [English](learning/ai/AI_GUIDE.md)
-- [日本語](learning/ai/AI_GUIDE_jp.md)
+- AI tools and workflows: [English](learning/ai/AI_GUIDE.md) ([日本語](learning/ai/AI_GUIDE_jp.md))
+- Local LLM inference environments: [English](learning/ai/local_llm_environment.md) ([日本語](learning/ai/local_llm_environment_jp.md)) — GPU/VRAM/bandwidth, RTX and DGX examples, inference engines, open-weight models, and setup examples.
 - [A visual guide to AI agents](learning/ai/agent_architecture.md) ([日本語](learning/ai/agent_architecture_jp.md)) — eight diagrams, including PNG illustrations.
 
 ## Learning Note Skill
