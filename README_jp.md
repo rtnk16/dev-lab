@@ -15,8 +15,8 @@ dev-lab/
 │   └── ai/
 │       ├── AI_GUIDE.md
 │       ├── AI_GUIDE_jp.md
-│       ├── instructions_and_skills.md
-│       ├── instructions_and_skills_jp.md
+│       ├── agent_architecture.md
+│       ├── agent_architecture_jp.md
 │       ├── local_llm_environment.md
 │       └── local_llm_environment_jp.md
 ├── .gitignore
@@ -39,8 +39,9 @@ dev-lab/
 
 - AI ツールとワークフロー: [英語版](learning/ai/AI_GUIDE.md)（[日本語版](learning/ai/AI_GUIDE_jp.md)）
 - ローカル LLM の推論環境: [英語版](learning/ai/local_llm_environment.md)（[日本語版](learning/ai/local_llm_environment_jp.md)）— GPU・VRAM・帯域、RTX・DGX の具体例、推論エンジン、オープンウェイトモデル、導入例を解説します。
+- [図でわかるAIエージェントの仕組み](learning/ai/agent_architecture_jp.md)（[英語](learning/ai/agent_architecture.md)）— PNGを含む8点の図で解説します。
 
 ## 学習ノートの Skill
 
 - [手順（英語）](.agents/skills/learning_note/SKILL.md)（[日本語](.agents/skills/learning_note/SKILL_jp.md)）
-- [Instructions と Skills の違い・使い方（英語）](learning/ai/instructions_and_skills.md)（[日本語](learning/ai/instructions_and_skills_jp.md)）
+- [Instructions と Skills の違い・使い方（英語）](learning/ai/AI_GUIDE.md#instructions-vs-skills)（[日本語](learning/ai/AI_GUIDE_jp.md#instructions-と-skills-の違い)）

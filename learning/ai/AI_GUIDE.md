@@ -1,8 +1,13 @@
 # A Practical Guide to AI Tools and Workflows
 
+[日本語](AI_GUIDE_jp.md)
+
 - This guide explains how to give AI useful instructions, provide knowledge, connect tools, and build repeatable workflows.
 - Product names, supported features, configuration locations, and instruction precedence vary.
 - Check your chosen product's documentation before applying configuration examples.
+
+
+- Start with each section's diagram, then read its examples. For the underlying architecture, see [the visual agent guide](agent_architecture.md).
 
 ## How the Mechanisms Connect
 
@@ -39,6 +44,21 @@ flowchart TD
 
 ## 2. Writing Effective Prompts
 
+**A useful request states the goal, context, constraints, and completion criteria.**
+
+```mermaid
+flowchart LR
+    G["Goal"]
+    B["Background"]
+    C["Constraints"]
+    D["Completion criteria"]
+    P["One clear prompt"]
+    G --> P
+    B --> P
+    C --> P
+    D --> P
+```
+
 - A useful prompt includes the goal, relevant background, constraints, expected output, and a way to judge success.
 - Provide examples when the desired result is difficult to describe.
 
@@ -57,6 +77,17 @@ Success: Identify breaking changes and clearly label uncertainties.
 - A vague request such as “improve this” becomes more useful as “rewrite this onboarding page for first-time users, preserve technical requirements, and keep it under 500 words.” Refine the result by naming the specific gap instead of repeating the original request.
 
 ## 3. Using Instructions
+
+**Instructions are the shared rules for work in their scope.**
+
+```mermaid
+flowchart LR
+    I["Project rules"]
+    A["Fix a bug"]
+    B["Write documentation"]
+    I --> A
+    I --> B
+```
 
 - Instructions describe rules that should apply repeatedly.
 - Depending on the product, they may live in personal settings, workspace configuration, repository files, or API messages.
@@ -87,6 +118,19 @@ Success: Identify breaking changes and clearly label uncertainties.
 - When instructions conflict, consult the host's instruction hierarchy and clarify unresolved project requirements; do not assume that the latest text always wins.
 
 ## 4. Building and Using Skills
+
+**A skill packages the steps for a recurring task.**
+
+```mermaid
+flowchart LR
+    S["Select a suitable skill"]
+    R["Read the procedure"]
+    W["Perform the steps"]
+    V["Check the result"]
+    S --> R
+    R --> W
+    W --> V
+```
 
 - A skill packages a repeatable task with instructions and, where supported, scripts, templates, and references.
 - Good candidates include release preparation, environment setup, incident triage, and documentation review.
@@ -121,7 +165,91 @@ Use this procedure when reviewing project documentation.
 - Test it on a representative task before relying on it.
 - Version skills alongside the workflows they describe and update them when commands or policies change.
 
+### How Instructions and Skills Apply
+
+```mermaid
+flowchart TD
+    I["AGENTS.md: shared rules"] --> W["Task"]
+    S["learning_note: selected procedure"] --> W
+    W --> E["English note"]
+    E --> J["Japanese translation"]
+    J --> V["Validation"]
+```
+
+### Instructions vs. Skills
+
+**Instructions define the rules; a skill supplies the procedure.**
+
+For a cooking analogy, “avoid an allergenic ingredient” is a rule; “chop, cook, then serve” is a procedure. AI tasks combine both.
+
+- Instructions define rules that apply across tasks within their scope.
+- A skill supplies a reusable procedure for a particular kind of task.
+- Both can contain instructions, but their purpose and loading behavior differ.
+
+| | Instructions | Skill |
+| --- | --- | --- |
+| Main question | What rules should work follow? | How should this task be performed? |
+| Example | Write English documentation and a Japanese translation | Research a topic, draft a note, translate it, and validate it |
+| Scope | Tasks covered by the instruction file | A selected task matching the skill |
+| Loading | Depends on host discovery and directory scope | Depends on host support, discovery, and explicit or automatic selection |
+| Repository example | `AGENTS.md` | `.agents/skills/learning_note/SKILL.md` |
+
+- Keep shared rules in `AGENTS.md`; avoid copying every rule into each skill.
+- A skill should refer to those rules and provide task-specific steps.
+- It does not override higher-priority instructions or grant extra permissions.
+
+### This Repository's Example
+
+```mermaid
+flowchart TD
+    T["Documentation request"]
+    I["Instructions: write both languages"]
+    S["Skill: research, draft, translate, check"]
+    R["Bilingual notes and validation results"]
+    T --> I
+    T --> S
+    I --> R
+    S --> R
+```
+
+- `AGENTS.md` says to create English documentation with a matching `_jp.md` translation and to avoid empty directories.
+- These rules also apply when working without a skill.
+
+- The `learning_note` skill explains how to choose a topic's scope, gather sources, create a concrete example, validate it, and produce the two language versions.
+- Its templates help give notes a consistent starting structure.
+
+### Using learning_note
+
+```mermaid
+flowchart LR
+    T["Request a topic"]
+    L["Discover and load the skill"]
+    W["Follow the procedure"]
+    V["Inspect artifacts and observed results"]
+    T --> L
+    L --> W
+    W --> V
+```
+
+- The skill is stored in `.agents/skills/learning_note/`, a repository skill location supported by Codex.
+- Discovery and invocation can vary by host and version.
+- This location does not guarantee automatic discovery by every Copilot client.
+
+- In a host that discovers it, explicitly request `learning_note` through the supported skill interface.
+- Otherwise, ask the assistant to read and follow `.agents/skills/learning_note/SKILL.md`; this is a manual fallback, not proof of native skill registration.
+
+```text
+Use learning_note to create a beginner's note about Linux processes and threads.
+Include a safe runnable example and official references.
+```
+
+- Check that the assistant loaded the procedure and produced both language versions with honest validation results.
+- Commit and push only when authorized.
+- Creating the files alone does not demonstrate skill discovery in a fresh session or successful execution of the full workflow.
+
 ## 5. Managing Context and Memory
+
+![Select relevant information for the current model call.](assets/agent_architecture/context_en.png)
 
 - Context is the information available for the current response: messages, files, retrieved passages, tool results, and system-provided information.
 - A context window is finite, so long conversations may be truncated or summarized.
@@ -138,6 +266,8 @@ Use this procedure when reviewing project documentation.
 - Recheck changing facts instead of treating old conversation history as current evidence.
 
 ## 6. Tools, Function Calling, and MCP
+
+![The MCP client connects the host to a server exposing capabilities.](assets/agent_architecture/mcp_en.png)
 
 - Tools let an AI request operations such as file reads, searches, command execution, or API calls.
 - With function calling, the application exposes named operations and argument schemas; the model proposes a call, and the host validates and executes it according to its permissions.
@@ -197,6 +327,22 @@ flowchart LR
 
 ## 8. Agents, Sub-agents, and Workflows
 
+**An agent uses results to decide the next step.**
+
+```mermaid
+flowchart LR
+    G["Goal"]
+    A["Choose an operation"]
+    T["Execute"]
+    R["Inspect the result"]
+    D["Report completion with evidence"]
+    G --> A
+    A --> T
+    T --> R
+    R --> A
+    R --> D
+```
+
 - An agent combines a goal, context, tools, and a control loop to perform multiple steps.
 - A useful loop is: inspect the situation, choose an action, execute it, evaluate the result, and continue or stop.
 
@@ -215,6 +361,19 @@ flowchart LR
 - Treat a report of success as a claim to validate against tool results and produced artifacts.
 
 ## 9. Output Formats and Quality Evaluation
+
+**A well-formatted answer still needs its content checked.**
+
+```mermaid
+flowchart LR
+    O["Generated output"]
+    F["Check format"]
+    C["Check evidence and behavior"]
+    R["Use the result"]
+    O --> F
+    F --> C
+    C --> R
+```
 
 - Choose Markdown for human-readable explanations, tables for comparisons, and structured data for downstream software.
 - Provide templates when a stable layout matters.
@@ -247,6 +406,19 @@ flowchart LR
 - Select models according to measured quality, latency, context needs, and cost.
 
 ## 10. Operating Safely
+
+**Treat retrieved text as information; permissions are enforced by the host.**
+
+```mermaid
+flowchart LR
+    D["External document"]
+    C["Use as reference"]
+    H["Host checks permissions"]
+    T["Permitted tool operation"]
+    D --> C
+    C --> H
+    H --> T
+```
 
 - Keep credentials in approved secret stores and avoid copying them into prompts, repositories, or logs.
 - Share only the information needed for the task and check the service's retention and data-use settings.
