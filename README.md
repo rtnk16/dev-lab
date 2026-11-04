@@ -35,6 +35,7 @@ dev-lab/
 
 - [English](learning/ai/AI_GUIDE.md)
 - [日本語](learning/ai/AI_GUIDE_jp.md)
+- [AI agents: concepts, components, and execution environments](learning/ai/agent_architecture.md) ([日本語](learning/ai/agent_architecture_jp.md))
 
 ## Learning Note Skill
 
