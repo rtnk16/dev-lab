@@ -55,6 +55,8 @@
 
 ## Git Workflow
 
+- Before starting or resuming each task, check the current branch and working tree, then run `git pull` with an explicit remote and the intended integration branch (the repository default unless specified otherwise) before editing files. For example, use `git pull --ff-only origin main` when a fast-forward is possible. Also synchronize the working branch's upstream when it exists, and reread any updated repository instructions after pulling.
+- A missing upstream or failed pull does not count as synchronization. If an upstream was deleted, explicitly pull the intended integration branch. Preserve local changes and resolve conflicts safely; if synchronization remains blocked, report the blocker before starting edits. Do not reset or discard unrelated work to make a pull succeed.
 - Use English commit messages and group each commit around one purpose.
 - Write pull request titles and descriptions in English.
 - After each completed change, validate it, commit it, and push to the working branch unless the user explicitly requests otherwise. Report the commit SHA and push result.
