@@ -4,6 +4,9 @@
 - Product names, supported features, configuration locations, and instruction precedence vary.
 - Check your chosen product's documentation before applying configuration examples.
 
+
+- Start with each section's diagram, then read its examples. For the underlying architecture, see [the visual agent guide](agent_architecture.md).
+
 ## How the Mechanisms Connect
 
 ```mermaid
@@ -39,6 +42,21 @@ flowchart TD
 
 ## 2. Writing Effective Prompts
 
+**A useful request states the goal, context, constraints, and completion criteria.**
+
+```mermaid
+flowchart LR
+    G["Goal"]
+    B["Background"]
+    C["Constraints"]
+    D["Completion criteria"]
+    P["One clear prompt"]
+    G --> P
+    B --> P
+    C --> P
+    D --> P
+```
+
 - A useful prompt includes the goal, relevant background, constraints, expected output, and a way to judge success.
 - Provide examples when the desired result is difficult to describe.
 
@@ -57,6 +75,17 @@ Success: Identify breaking changes and clearly label uncertainties.
 - A vague request such as “improve this” becomes more useful as “rewrite this onboarding page for first-time users, preserve technical requirements, and keep it under 500 words.” Refine the result by naming the specific gap instead of repeating the original request.
 
 ## 3. Using Instructions
+
+**Instructions are the shared rules for work in their scope.**
+
+```mermaid
+flowchart LR
+    I["Project rules"]
+    A["Fix a bug"]
+    B["Write documentation"]
+    I --> A
+    I --> B
+```
 
 - Instructions describe rules that should apply repeatedly.
 - Depending on the product, they may live in personal settings, workspace configuration, repository files, or API messages.
@@ -87,6 +116,19 @@ Success: Identify breaking changes and clearly label uncertainties.
 - When instructions conflict, consult the host's instruction hierarchy and clarify unresolved project requirements; do not assume that the latest text always wins.
 
 ## 4. Building and Using Skills
+
+**A skill packages the steps for a recurring task.**
+
+```mermaid
+flowchart LR
+    S["Select a suitable skill"]
+    R["Read the procedure"]
+    W["Perform the steps"]
+    V["Check the result"]
+    S --> R
+    R --> W
+    W --> V
+```
 
 - A skill packages a repeatable task with instructions and, where supported, scripts, templates, and references.
 - Good candidates include release preparation, environment setup, incident triage, and documentation review.
@@ -123,6 +165,8 @@ Use this procedure when reviewing project documentation.
 
 ## 5. Managing Context and Memory
 
+![Select relevant information for the current model call.](assets/agent_architecture/context_en.png)
+
 - Context is the information available for the current response: messages, files, retrieved passages, tool results, and system-provided information.
 - A context window is finite, so long conversations may be truncated or summarized.
 
@@ -138,6 +182,8 @@ Use this procedure when reviewing project documentation.
 - Recheck changing facts instead of treating old conversation history as current evidence.
 
 ## 6. Tools, Function Calling, and MCP
+
+![The MCP client connects the host to a server exposing capabilities.](assets/agent_architecture/mcp_en.png)
 
 - Tools let an AI request operations such as file reads, searches, command execution, or API calls.
 - With function calling, the application exposes named operations and argument schemas; the model proposes a call, and the host validates and executes it according to its permissions.
@@ -197,6 +243,22 @@ flowchart LR
 
 ## 8. Agents, Sub-agents, and Workflows
 
+**An agent uses results to decide the next step.**
+
+```mermaid
+flowchart LR
+    G["Goal"]
+    A["Choose an operation"]
+    T["Execute"]
+    R["Inspect the result"]
+    D["Report completion with evidence"]
+    G --> A
+    A --> T
+    T --> R
+    R --> A
+    R --> D
+```
+
 - An agent combines a goal, context, tools, and a control loop to perform multiple steps.
 - A useful loop is: inspect the situation, choose an action, execute it, evaluate the result, and continue or stop.
 
@@ -215,6 +277,19 @@ flowchart LR
 - Treat a report of success as a claim to validate against tool results and produced artifacts.
 
 ## 9. Output Formats and Quality Evaluation
+
+**A well-formatted answer still needs its content checked.**
+
+```mermaid
+flowchart LR
+    O["Generated output"]
+    F["Check format"]
+    C["Check evidence and behavior"]
+    R["Use the result"]
+    O --> F
+    F --> C
+    C --> R
+```
 
 - Choose Markdown for human-readable explanations, tables for comparisons, and structured data for downstream software.
 - Provide templates when a stable layout matters.
@@ -247,6 +322,19 @@ flowchart LR
 - Select models according to measured quality, latency, context needs, and cost.
 
 ## 10. Operating Safely
+
+**Treat retrieved text as information; permissions are enforced by the host.**
+
+```mermaid
+flowchart LR
+    D["External document"]
+    C["Use as reference"]
+    H["Host checks permissions"]
+    T["Permitted tool operation"]
+    D --> C
+    C --> H
+    H --> T
+```
 
 - Keep credentials in approved secret stores and avoid copying them into prompts, repositories, or logs.
 - Share only the information needed for the task and check the service's retention and data-use settings.

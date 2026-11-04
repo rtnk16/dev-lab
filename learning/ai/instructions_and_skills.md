@@ -15,6 +15,10 @@ flowchart TD
 
 ## The Difference
 
+**Instructions define the rules; a skill supplies the procedure.**
+
+For a cooking analogy, “avoid an allergenic ingredient” is a rule; “chop, cook, then serve” is a procedure. AI tasks combine both.
+
 - Instructions define rules that apply across tasks within their scope.
 - A skill supplies a reusable procedure for a particular kind of task.
 - Both can contain instructions, but their purpose and loading behavior differ.
@@ -33,6 +37,18 @@ flowchart TD
 
 ## This Repository's Example
 
+```mermaid
+flowchart TD
+    T["Documentation request"]
+    I["Instructions: write both languages"]
+    S["Skill: research, draft, translate, check"]
+    R["Bilingual notes and validation results"]
+    T --> I
+    T --> S
+    I --> R
+    S --> R
+```
+
 - `AGENTS.md` says to create English documentation with a matching `_jp.md` translation and to avoid empty directories.
 - These rules also apply when working without a skill.
 
@@ -40,6 +56,17 @@ flowchart TD
 - Its templates help give notes a consistent starting structure.
 
 ## Using learning_note
+
+```mermaid
+flowchart LR
+    T["Request a topic"]
+    L["Discover and load the skill"]
+    W["Follow the procedure"]
+    V["Inspect artifacts and observed results"]
+    T --> L
+    L --> W
+    W --> V
+```
 
 - The skill is stored in `.agents/skills/learning_note/`, a repository skill location supported by Codex.
 - Discovery and invocation can vary by host and version.
