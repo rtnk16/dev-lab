@@ -40,4 +40,4 @@ dev-lab/
 ## Learning Note Skill
 
 - [Procedure](.agents/skills/learning_note/SKILL.md) ([日本語](.agents/skills/learning_note/SKILL_jp.md))
-- [Instructions vs. skills and usage](learning/ai/instructions_and_skills.md) ([日本語](learning/ai/instructions_and_skills_jp.md))
+- [Instructions vs. skills and usage](learning/ai/AI_GUIDE.md#instructions-vs-skills) ([日本語](learning/ai/AI_GUIDE_jp.md#instructions-と-skills-の違い))
