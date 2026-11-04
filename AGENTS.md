@@ -14,6 +14,12 @@
 
 ## Documentation and Translation
 
+- Write for the intended reader using plain language. Introduce unfamiliar terms with a short definition before using them in detailed explanations.
+- For conceptual learning materials, prefer “short explanation → diagram → concrete example” for each major topic. Use a consistent example across related sections and move advanced details into optional or collapsible supplements when helpful.
+- Use diagrams actively to explain roles, relationships, information flow, execution locations, and boundaries. Split complex diagrams into focused views; do not impose a fixed diagram count or add decorative repetition.
+- Prefer Mermaid for editable flows and ASCII trees for directories. Add PNG illustrations when they improve readability, sharing, or compatibility with viewers that cannot render Mermaid. Keep editable sources or a reproducible generation script alongside the material and document generation prerequisites and commands.
+- Give diagrams descriptive labels and alt text, explain how to read them, and check text legibility, arrow direction, clipping, and consistency with the prose. Keep diagrams aligned between languages; report rendering checks that were not run.
+
 - Prefer concise bullet points, with one main idea per item. Use short prose only when it improves clarity.
 - Include diagrams where they clarify relationships, structure, or workflows. Prefer Mermaid for flows and ASCII trees for directories; avoid decorative or redundant diagrams.
 - Keep diagrams consistent between English and Japanese versions; translate explanatory labels while preserving identifiers and behavior.
@@ -52,5 +58,5 @@
 - Use English commit messages and group each commit around one purpose.
 - Write pull request titles and descriptions in English.
 - After each completed change, validate it, commit it, and push to the working branch unless the user explicitly requests otherwise. Report the commit SHA and push result.
-- Create pull requests and publish releases or deployments only when requested.
+- After validation, commit, and a successful push, check for an open pull request for the working branch. If none exists and there are changes to propose, create a draft pull request targeting the intended integration branch (the repository default unless specified otherwise). If one exists, update its title and description to reflect the final changes and validation, preserving relevant existing context and review state. Avoid duplicate pull requests. Report the PR URL. Do not merge, enable auto-merge, publish releases, or deploy unless explicitly requested. If authentication or permissions prevent PR creation or updates, report the blocker without claiming success.
 - Push directly to `main` or force-push only when explicitly instructed. Do not reset or overwrite unrelated work.
