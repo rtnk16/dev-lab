@@ -13,14 +13,15 @@
 
 ## セットアップと起動
 
-リポジトリのルートから、プロジェクトの依存関係をインストールします。
+初めて取得する場合は、リポジトリをcloneしてからプロジェクトの依存関係をインストールします。
 
 ```sh
-cd projects/blockwave
+git clone https://github.com/rtnk16/dev-lab.git
+cd dev-lab/projects/blockwave
 npm ci
 ```
 
-リポジトリのZIPをダウンロードした場合は、展開してから `dev-lab-main` ディレクトリを開いてください。ブラウザ画面のソースダウンロードボタンでは、このプロジェクトを含むリポジトリ全体のZIPを取得できます。
+取得済みの場合は、リポジトリのルートを開き、`cd projects/blockwave` と `npm ci` を実行してください。ZIPをダウンロードした場合は、展開して `dev-lab-main` を開いてから、同じコマンドを実行します。ブラウザ画面のソースダウンロードボタンでは、このプロジェクトを含むリポジトリ全体のZIPを取得できます。
 
 ブラウザ版を起動します。
 
@@ -96,6 +97,11 @@ node build/terminal/index.js --snapshot
 ```
 
 `--help` は日本語の操作説明と必要環境を表示します。`--snapshot` は同じ内容を再現できる盤面のプレビューを表示して終了します。
+
+## 困ったとき
+
+- インストール時にNode.jsのバージョンが対応外と表示された場合は、`node --version` で確認し、Node.js 22.12以降をインストールしてから `npm ci` を再実行してください。
+- コマンドは `projects/blockwave` で実行します。ターミナル版の起動は `npm run play` です。ゲームを始めずに操作説明を見る場合は、`npm run play -- --help` を使います。
 
 ## 構成
 

@@ -13,14 +13,15 @@
 
 ## Setup and Play
 
-From the repository root, install the project's dependencies:
+For a first checkout, clone the repository and install the project's dependencies:
 
 ```sh
-cd projects/blockwave
+git clone https://github.com/rtnk16/dev-lab.git
+cd dev-lab/projects/blockwave
 npm ci
 ```
 
-If you downloaded the repository ZIP, extract it and open the `dev-lab-main` directory first. The browser's source download button downloads the whole repository, including this project.
+If you already have a checkout, open the repository root, then run `cd projects/blockwave` and `npm ci`. If you downloaded the repository ZIP, extract it and open `dev-lab-main` first, then use the same commands. The browser's source download button downloads the whole repository, including this project.
 
 Start the browser client:
 
@@ -96,6 +97,11 @@ node build/terminal/index.js --snapshot
 ```
 
 `--help` prints Japanese controls and requirements. `--snapshot` prints a deterministic board preview and exits.
+
+## Troubleshooting
+
+- If installation reports an unsupported Node.js version, check `node --version`, install Node.js 22.12 or later, then rerun `npm ci`.
+- Run commands from `projects/blockwave`. Start the terminal client with `npm run play`. For controls without starting a game, use `npm run play -- --help`.
 
 ## Structure
 

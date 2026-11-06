@@ -31,6 +31,13 @@
 - Keep the meaning, structure, examples, and warnings consistent across languages. If a discrepancy is found, correct the Japanese translation against the English source.
 - Use these rules for authored documentation, including instruction files. Do not rename required tool configuration files or translate generated or third-party files merely to create language pairs.
 
+## Application README Requirements
+
+- Every new application must include `README.md` and a matching `README_jp.md` in its own directory.
+- Document the application's purpose, prerequisites, installation, startup commands, basic usage, and validation commands with expected results. Include configuration instructions when configuration is required.
+- Create or update both READMEs in the same change as the application. Keep them current when setup, commands, or behavior changes; application work is incomplete until both READMEs are present and up to date.
+- When adding an application, link its READMEs from the repository's root `README.md` and `README_jp.md`.
+
 ## Organization and Naming
 
 - Create directories only when adding content. Do not create empty directories or `.gitkeep` placeholders.
