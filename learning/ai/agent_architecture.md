@@ -745,33 +745,6 @@ python learning/ai/scripts/render_agent_diagrams.py
 
 - Expected output: four English and four Japanese PNGs under `learning/ai/assets/agent_architecture/`. The same layouts and relationships are used in both languages.
 
-## Fact check and verification scope
-
-Checked: 2026-11-07 (Japan time). Official sources support the following distinctions.
-
-- Agent denotes the overall system here; harness denotes its control layer. These boundaries are not a universal specification.
-- Tool requests differ from execution; application-side handling is needed.
-- MCP is a connection protocol, distinct from LLMs, RAG, and granting permissions.
-- Mods, extensions, and plugins have product-specific execution and packaging semantics.
-- Implementation languages are not limited to C/C++, Python, and TypeScript; Codex includes a Rust implementation.
-
-No screenshot attachment was available in this conversation. Existing illustrations were retained and the supplied text was incorporated; screenshot-specific claims could not be checked. Model calls, MCP connections, and test runs in the examples are conceptual, not execution records. Existing PNGs were not regenerated and Mermaid rendering was not checked in this change.
-
-Additional primary sources:
-
-- [OpenAI: Unlocking the Codex harness](https://openai.com/index/unlocking-the-codex-harness/)
-- [Anthropic: Managed Agents architecture](https://www.anthropic.com/research/managed-agents)
-- [Anthropic: Claude Code Mods](https://github.com/anthropics/claude-code/blob/main/mods/README.md)
-- [GitHub: Copilot extensions](https://docs.github.com/en/copilot/concepts/customizations/extensions)
-
-## What to learn next
-
-1. Harness state management and the agent loop.
-2. Tool calling schemas, call IDs, and result association.
-3. Skill loading and hook/mod execution timing.
-4. MCP stdio / Streamable HTTP communication and authorization.
-5. Build a small Python or TypeScript agent with stopping conditions and validation.
-
 ## References
 
 - [OpenAI: Key concepts](https://platform.openai.com/docs/concepts) — models and tokens.

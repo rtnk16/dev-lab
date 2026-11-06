@@ -749,33 +749,6 @@ python learning/ai/scripts/render_agent_diagrams.py
 
 - 期待する出力は、`learning/ai/assets/agent_architecture/`配下の英語4点・日本語4点のPNGです。両言語で同じ配置・関係を使います。
 
-## ファクトチェックと確認範囲
-
-確認日：2026-11-07（日本時間）。公式資料を確認し、次の区別を反映しました。
-
-- Agentはシステム全体、Harnessはその実行制御層として説明する。両者の境界は普遍的な仕様ではない。
-- Tool Callingの要求と実際の実行は別で、アプリ側の処理が必要。
-- MCPは接続プロトコルであり、LLM・RAG・権限付与の仕組みと同一ではない。
-- Mods、Extensions、Pluginsは同義ではなく、製品固有の実行方式がある。
-- 実装言語をC/C++・Python・TypeScriptに限定しない。CodexにはRust実装がある。
-
-今回の会話ではキャプチャの添付を確認できませんでした。既存の図版は保持し、貼り付けられた本文を反映しました。キャプチャ固有の情報の照合は未実施です。例のモデル呼び出し・MCP接続・テスト実行は概念説明であり、実行記録ではありません。既存PNGの再生成とMermaidのレンダリング確認は今回未実施です。
-
-追加の一次資料：
-
-- [OpenAI: Unlocking the Codex harness](https://openai.com/index/unlocking-the-codex-harness/)
-- [Anthropic: Managed Agents architecture](https://www.anthropic.com/research/managed-agents)
-- [Anthropic: Claude Code Mods](https://github.com/anthropics/claude-code/blob/main/mods/README.md)
-- [GitHub: Copilot extensions](https://docs.github.com/en/copilot/concepts/customizations/extensions)
-
-## 次に学ぶこと
-
-1. Harness内部の状態管理とAgent Loop。
-2. Tool Callingのスキーマ、call ID、結果の関連付け。
-3. Skillsの読み込みとHooks・Modsの実行タイミング。
-4. MCPのstdio／Streamable HTTP通信と認証。
-5. PythonまたはTypeScriptで小さなエージェントを実装し、停止条件と検証を追加する。
-
 ## 参考資料
 
 - [OpenAI: Key concepts](https://platform.openai.com/docs/concepts) — モデルとトークン。
