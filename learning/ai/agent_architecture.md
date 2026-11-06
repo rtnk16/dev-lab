@@ -4,6 +4,8 @@
 
 This consolidated guide combines the architecture and practical material formerly maintained in `agent_architecture.md` and `AI_GUIDE.md`. It explains the relationships between assistants, agents, harnesses, LLMs, and extensions through implementation, execution, and practical use.
 
+**Engineering goal:** customize AI for your development procedures, tools, and UI. After the overall architecture, focus on [section 12](#12-engineering-customization-what-you-can-change); section 3 maps each product to execution environments and I/O.
+
 Prerequisites: C/C++, Python, TypeScript, Linux, OS processes, and system calls. Start with the overall structure and execution locations, then proceed to components and practical examples. Terminology varies by product; this is not a claim about private implementations.
 
 Reading map: sections 1–5 cover the overall system, products, and execution; 6–11 explain core components; 12–16 cover customization and operation; 17–20 connect the practical workflow and troubleshooting.
@@ -371,23 +373,108 @@ Other products may run tools on your PC, use a VM, or run the whole host in the 
 - Ask for citations and verify that they support the actual claims.
 - When sources are missing or contradictory, report the gap instead of filling it with an unsupported answer.
 
-## 12. Extensions: what changes, and when
+## 12. Engineering customization: what you can change
 
-| Mechanism | Role and application point |
-| --- | --- |
-| Instructions | Add scoped rules to model input |
-| Skills | Load selected task procedures, knowledge, and supporting scripts |
-| Hooks | Handle product-defined events, such as before or after a tool operation |
-| Claude Code Mods | Plugins with a hooks module that extend behavior and display through exposed events and APIs |
-| Copilot CLI Extensions | Add session-aware tools, commands, and state through code running alongside a session |
-| MCP | Standardize host/server capability and data communication |
-| Plugins | Distribute supported combinations of skills, hooks, MCP configuration, and other components |
+The engineering goal is to adapt an agent to your repository, tools, and development process. The useful questions are **what you write, when the host invokes it, where it runs, what it receives, and what it can change**. These mechanisms compose; they are not a ladder of increasingly powerful versions of the same feature.
 
-Instructions and skills primarily guide the model; skill scripts still require tools and execution permissions. Hooks are not necessarily shell commands; supported handler types vary.
+```text
+Your project rules and procedures
+    Instructions / Skills
+            | relevant content becomes model input
+            v
+    Harness <----------------------> LLM
+       |       context / answer or tool request
+       |
+       +-- lifecycle event --> Hook handler --> supported result/control data
+       |
+       +-- extension API <--> Mod / CLI Extension
+       |                      behavior, UI, commands, tools, session state
+       |
+       +-- operation request --> Built-in/custom tool
+       |                      or MCP client --> MCP server --> service
+       |
+       +-- delegated task --> Sub-agent --> findings / artifacts
 
-Claude Code Mods are an official extension mechanism, not a general license to rewrite arbitrary internals. Copilot CLI extensions run as separate Node.js processes containing JavaScript modules and are experimental at the time checked. They differ from retired GitHub App-based Copilot Extensions and IDE extensions. See the [official Mods material](https://github.com/anthropics/claude-code/blob/main/mods/README.md) and [official Extensions documentation](https://docs.github.com/en/copilot/concepts/customizations/extensions).
+Plugin: packages supported combinations of these components for distribution.
+SDK / application API: lets your own program drive or embed an agent runtime.
+```
 
-Example: load a bug investigation skill, format after an edit with a hook, and search issues through MCP. Whether these can be distributed together as a plugin depends on the product.
+### 12.1 Mechanisms, execution locations, and I/O
+
+| Mechanism | What you implement | Trigger and execution location | Input → output / effect |
+| --- | --- | --- | --- |
+| Instructions | Scoped Markdown rules or settings | Host loads applicable content | Rules → model guidance; e.g. supported build command |
+| Skills | SKILL.md, references, templates, helper scripts | Explicit invocation or task-based selection; scripts run through tools | Task and procedure → guided work and artifacts |
+| Hooks | Event registration plus a handler, often a script | Product-defined lifecycle event; command handlers usually run in the agent environment | Event payload → exit status, logs, context or decisions supported by that event |
+| Claude Code Mods | JavaScript/TypeScript hooks module inside a plugin | Exposed events inside Claude Code | Events and state → supported behavior changes, commands or UI |
+| Copilot CLI Extensions | JavaScript module using the extension SDK | Separate Node.js process alongside the session | Session events and tool/command calls → results and session-aware behavior |
+| Custom tools / MCP servers | Operation implementation and input schema | A permitted call; local process or remote service | Named arguments → structured data, artifacts or an operation result |
+| Custom agents / sub-agents | Role instructions and permitted tools, sometimes model configuration | Selected role or delegated task; location depends on runtime | Bounded assignment and context → findings, code or other artifacts |
+| Plugins | Manifest and supported components | Installation and loading; each component has its own runtime | Bundle → registered skills, hooks, tools, etc. |
+| SDK / application API | Your own Python/TypeScript or other application | Your service, CLI, CI job or scheduler | Tasks and options → agent events, results and artifacts |
+
+MCP standardizes communication with a server exposing capabilities. A tool implementation provides the capability itself. A plugin packages components; it need not be a separate executable. A skill can contain code, but loading its text alone does not run that code.
+
+### 12.2 Hooks: event handlers rather than a model deciding to call a tool
+
+For a command hook, the sequence is conceptually:
+
+```text
+A configured event occurs in the harness
+    → match the event and filters
+    → start your handler with the event payload
+    → read its exit status / supported output
+    → continue, add context, or apply a supported decision
+```
+
+For example, after a successful edit operation, a hook can identify changed C++ files and invoke an existing formatting script. The script receives event data, derives validated file paths, runs clang-format, and returns a status and useful log. Whether the host exposes those exact fields or consumes additional JSON depends on the product and event.
+
+- The host dispatches an enabled, trusted matching hook; it does not depend on the LLM remembering to request that hook.
+- Successful execution still depends on registration, event matching, dependencies, timeouts and handler behavior.
+- A pre-action event may support allowing, blocking or modifying a request. A post-action handler cannot undo an operation merely by reporting failure.
+- Not every hook is a shell program. Supported handlers can also include MCP, HTTP or model-backed handlers, depending on the product. [C1][C2][C3]
+
+### 12.3 Mods and CLI Extensions: code participating in a live session
+
+A **Claude Code Mod** supplies functions in a hooks module. Claude Code calls them at exposed events, and the module uses supported APIs to affect behavior or display. A useful example is a session panel showing the most recent test result. This is an event-handler/middleware-style extension mechanism; its API defines what can be changed. [A3]
+
+A **Copilot CLI Extension** runs as a separate Node.js process and connects to the session through the extension SDK. It can keep session state, expose tools and slash commands, and react to events. For example, it could accumulate test-run durations and provide a command that reports the total. The documented CLI extension feature is experimental. [G3]
+
+The distinction from a simple command hook is the integration contract: which events and APIs are available, how session state is maintained, what UI/commands can be added, and how the extension communicates with the host. They overlap in purpose; neither label implies unlimited control of the harness. IDE extensions and the retired GitHub App-based Copilot Extensions are different mechanisms.
+
+### 12.4 Plugins: distribute a working combination
+
+A team plugin might package a code-review skill, a formatting hook, an internal issue-search MCP connection, and a supported command/UI extension. Installation makes the components discoverable; each component then follows its own selection, event, execution and permission rules. Packaging does not by itself trigger every component or grant service access.
+
+Plugin manifests and supported contents differ between products. A Claude Code Mod is one kind of Claude Code plugin; a plugin can also contain no mod at all. [A3][C4][G3]
+
+### 12.5 How to choose for an engineering task
+
+| Desired change | Start with | Why |
+| --- | --- | --- |
+| Follow repository conventions | Instructions | Supplies shared project guidance |
+| Repeat the same investigation or release procedure | Skill | Makes the procedure and supporting resources reusable |
+| Format changed files after a supported edit event | Hook plus a formatter script | Connects known code to an event |
+| Search an internal issue tracker | Narrow custom tool, exposed through MCP when useful | Gives the agent a callable operation with explicit arguments |
+| Add a persistent session panel or custom command | Product-specific Mod / Extension | Uses session and UI APIs |
+| Give reviews a dedicated role and tool set | Custom agent / sub-agent | Defines a bounded assignment and context |
+| Share a configured setup with the team | Plugin | Packages supported components for installation |
+| Trigger work from CI and process events in your own app | SDK / application API plus a workflow | Lets your program initiate and supervise agent work |
+| Change loop logic beyond exposed extension points | Custom harness or source modification where available | Requires owning the orchestration implementation |
+
+Model/provider selection, reasoning settings where supported, tool permissions, sandboxing, environment setup, retrieval and context selection are additional configuration points. They affect which work is possible and what evidence reaches the model; they are not all code plugins.
+
+For a C++ bug-fixing workflow: Instructions specify CMake/CTest conventions; a Skill describes reproduction, investigation, patching and verification; a post-edit Hook formats relevant files; an MCP tool searches internal issues; an optional Mod/Extension displays test state; a Plugin distributes the supported combination. Use your CI checks as the final automated check for a merge, rather than treating an agent's report or a skipped hook as proof.
+
+### 12.6 Product entry points
+
+| Product | Project guidance | Event handlers | Deeper integration / distribution |
+| --- | --- | --- | --- |
+| Codex | AGENTS.md, Skills | Hooks in supported configuration layers | Plugins; Codex SDK / App Server to drive the runtime from an app |
+| Claude Code | CLAUDE.md, Skills | Settings hooks; Mods also expose function hooks | Mods and Plugins; Agent SDK for application integration |
+| GitHub Copilot CLI | Copilot instructions, Skills | CLI hooks | CLI Extensions, Plugins, Copilot SDK |
+
+The right-hand column lists different kinds of entry points, not equivalent extension APIs. SDK integration uses an agent runtime from another program; it does not automatically replace the runtime's internal loop. Use each product's documented event payloads, return formats and supported surfaces. [O2][A3][G3][C1][C2][C3]
 
 ## Writing Effective Prompts
 
@@ -478,8 +565,6 @@ Use this procedure when reviewing project documentation.
 - Invoke a skill using the host's supported interface, then verify that it was loaded.
 - Test it on a representative task before relying on it.
 - Version skills alongside the workflows they describe and update them when commands or policies change.
-
-### How Instructions and Skills Apply
 
 ### Instructions vs. Skills
 
@@ -781,3 +866,8 @@ Check the chain **input → model output → harness → tool → external servi
 - [G4] [GitHub: Copilot cloud agent](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-on-github)
 - [G5] [VS Code: Agent harnesses](https://code.visualstudio.com/docs/agents/run/agent-harnesses)
 - [M1] [MCP: Architecture](https://modelcontextprotocol.io/docs/learn/architecture)
+
+- [C1] [OpenAI: Hooks](https://learn.chatgpt.com/docs/hooks)
+- [C2] [Anthropic: Hooks reference](https://code.claude.com/docs/en/hooks)
+- [C3] [GitHub: Hooks reference](https://docs.github.com/en/copilot/reference/hooks-reference)
+- [C4] [OpenAI: Package your plugin](https://developers.openai.com/plugins/build/plugins)
