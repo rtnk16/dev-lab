@@ -1,0 +1,41 @@
+{
+  "purpose": "Conceptual infographic inspired by the user-supplied reference image",
+  "generation": "image_gen; generated assets are retained alongside this specification",
+  "layout": "Landscape; navy title bars; white background; rounded pastel cards; black line icons; left role cards, center architecture, right extension cards, bottom takeaways",
+  "languages": [
+    "en",
+    "jp"
+  ],
+  "relationships": [
+    "User -> UI/App -> Agent",
+    "Harness -> LLM: input",
+    "LLM -> Harness: answer / tool request",
+    "Harness -> Tools: permitted operation",
+    "Tools -> Harness: execution result"
+  ],
+  "roles": [
+    "UI / App",
+    "Agent",
+    "Harness",
+    "Model (LLM)"
+  ],
+  "extensions": [
+    "Instructions",
+    "Skills",
+    "Hooks",
+    "Mods",
+    "Plugins",
+    "MCP"
+  ],
+  "constraints": [
+    "Conceptual boundaries, not process or deployment boundaries",
+    "MCP is a connection protocol",
+    "Product-specific implementation and extension support",
+    "No product comparison inside image"
+  ],
+  "assets": [
+    "overview_infographic_en.png",
+    "overview_infographic_jp.png"
+  ],
+  "reproduction": "Regenerate using an image generation tool from this layout and the bilingual labels in the retained PNGs; exact pixel reproduction is not guaranteed."
+}

@@ -8,32 +8,21 @@ Prerequisites: C/C++, Python, TypeScript, Linux, OS processes, and system calls.
 
 Reading map: sections 1–5 cover the overall system, products, and execution; 6–11 explain core components; 12–16 cover customization and operation; 17–20 connect the practical workflow and troubleshooting.
 
+![AI agents at a glance: roles on the left, user/UI/agent/tool relationships in the center, and extension roles on the right.](assets/agent_architecture/overview_infographic_en.png)
+
+**How to read the image:** follow the center from top to bottom: a request reaches the agent through the UI. The blue harness and green LLM exchange information; tools below perform operations and return results. Side cards summarize terms. Colors and boundaries indicate conceptual roles, not processes or deployment locations.
+
 ## 1. Overall structure: from user to execution environment
 
 The user supplies a goal through a UI. An agent combines harness control, LLM generation and decisions, and tool operations. Agent and harness are not synonyms: here, the harness is the control layer supporting the agent.
 
-```mermaid
-flowchart LR
-    U["User / ユーザー"] <--> UI["UI / App"]
-    subgraph A["Agent system"]
-      H["Harness: loop, context, permissions"]
-      T["Tools: files, shell, Git, APIs"]
-      H <--> T
-    end
-    UI <--> H
-    H <--> L["LLM / inference service"]
-    T <--> E["Execution environment / external services"]
-```
-
-Arrows show requests and results, not process boundaries. UI and harness may share an application or run in separate services. Model inference may also be local or remote.
+UI and harness may share an application or run in separate services. Model inference may also be local or remote.
 
 ## 2. Start with three roles
 
 **The LLM generates the next step. Tools perform operations. The harness manages the exchange. Together, they make up the agent system described here.**
 
-![A user gives a goal to an agent system. Its harness exchanges information with the LLM and requests permitted tool operations.](assets/agent_architecture/overview_en.png)
-
-**Read the numbered arrows:** give information to the LLM → receive an operation request → run the permitted operation → return its result. Repeat as needed.
+**The cycle:** supply model input → receive an action request → execute the permitted operation → return its result.
 
 | Name | Plain explanation | In “Fix this bug” |
 | --- | --- | --- |
@@ -65,15 +54,13 @@ For example, a harness process calls an LLM API, validates a returned `run_tests
 
 **The execution environment is the machine or session where a tool performs its operation.** The model and the test command can run in different places.
 
-![Example deployment: a local CLI manages requests to a model provider and commands in a separate cloud workspace.](assets/agent_architecture/runtime_en.png)
-
 **This is one example deployment:**
 
 - Your PC runs a CLI, the command-line application receiving your request.
 - The provider's server runs model inference.
 - A cloud workspace runs file operations and `pytest`. A **container** is one possible way to provide an isolated process environment there.
 
-Other products may run tools on your PC, use a VM, or run the whole host in the cloud. An MCP server can also be local or remote. The diagram shows locations, not a universal deployment.
+Other products may run tools on your PC, use a VM, or run the whole host in the cloud. An MCP server can also be local or remote. This is not a universal deployment.
 
 | Check | Plain question |
 | --- | --- |
@@ -92,13 +79,6 @@ Other products may run tools on your PC, use a VM, or run the whole host in the 
 
 **An LLM is a model that generates output from the information it receives.** LLM stands for *large language model*.
 
-```mermaid
-flowchart LR
-    C["Input: request and relevant code"] --> L["LLM: generate output"]
-    L --> A["Answer: here is a suggested fix"]
-    L --> T["Operation request: read this file"]
-```
-
 **Example:** the model sees a division function and generates “Raise an exception when the denominator is zero.” That is a proposed fix. A tool must edit the actual file, and a test must check the behavior.
 
 - In practice, the model consists of learned parameters used by an inference process or service.
@@ -109,29 +89,16 @@ flowchart LR
 
 **A harness is the software that makes repeated model calls and tool operations work together.** Think of it as the work coordinator; it also applies execution limits and permissions.
 
-```mermaid
-flowchart TD
-    C["Assemble the input"] --> L["Call the LLM"]
-    L --> Q{"Operation requested?"}
-    Q -->|Yes| P["Check arguments and permissions"]
-    P --> T["Run the tool or record why it cannot run"]
-    T --> R["Add the result to the next input"]
-    R --> C
-    Q -->|No| A["Return the answer; assess completion with evidence"]
-```
-
 **Example:** the model requests `pytest -q`. The harness checks that the command is allowed, runs it through the shell tool, waits for completion, and returns the exit code and log. The model can then decide whether to adjust the fix.
 
 - A **tool call** is a request to run something. Its **result** tells us what actually happened.
 - The harness manages context selection, running processes, progress, retries, and stopping conditions. These responsibilities may be split across an application, SDK, and infrastructure.
 - The same LLM can behave differently with different tools, input selection, or error handling.
-- The simplified diagram omits cancellation and time/budget limits; real systems need those ways to stop too.
+- Real systems also need cancellation and time/budget limits.
 
 ## 8. Context: the information on the desk right now
 
 **Context is the information available for this model call.** A useful analogy is the material placed on a desk for the current task.
-
-![The harness selects relevant material from conversation, files, and external sources, then supplies it to the LLM as current context.](assets/agent_architecture/context_en.png)
 
 **Example:** for a division bug, useful context includes the requirement, the division function, and the failing test. An unrelated image folder probably does not help.
 
@@ -146,10 +113,6 @@ flowchart TD
 | Memory | Selected information saved by the application and retrieved later |
 
 **RAG** means searching for relevant material and adding it to the input before generating a response. For example, search a specification and supply the matching paragraphs as context.
-
-
-
-
 
 - Context is the information available for the current response: messages, files, retrieved passages, tool results, and system-provided information.
 - A context window is finite, so long conversations may be truncated or summarized.
@@ -169,14 +132,7 @@ flowchart TD
 
 **Tokens are the model's input/output units.** A token is not necessarily one word or one character.
 
-```mermaid
-flowchart LR
-    S["Text: a request or code"] --> T["Tokenizer: split and encode"]
-    T --> I["Token IDs: model-specific units"]
-    I --> L["LLM"]
-```
-
-**Why it matters:** the model has an input/output budget, and usage often contributes to cost. Exact segmentation depends on the model and language; this diagram does not show an actual tokenization result.
+**Why it matters:** the model has an input/output budget, and usage often contributes to cost. Exact segmentation depends on the model and language; the description does not imply a particular tokenization result.
 
 **A hypothetical 32,000-token combined limit:**
 
@@ -199,8 +155,6 @@ flowchart LR
 
 **MCP is a protocol for connecting an AI application to servers exposing tools and data.** Its full name is *Model Context Protocol*.
 
-![An MCP client inside the host connects to an MCP server, which calls an issue service API and returns results.](assets/agent_architecture/mcp_en.png)
-
 **Follow a search request:**
 
 1. The LLM generates a request to search issues related to the bug.
@@ -218,8 +172,6 @@ flowchart LR
 - Tools can also use direct functions or APIs. A local file edit does not require MCP.
 - Connecting a server makes its capabilities available; it does not automatically load all its data or train the model on it.
 - Access still depends on authentication, account permissions, and network restrictions. Creating an issue requires the appropriate write access in addition to search capability.
-
-
 
 - To connect a server:
 
@@ -251,15 +203,6 @@ flowchart LR
 - Ask for citations and verify that they support the actual claims.
 - When sources are missing or contradictory, report the gap instead of filling it with an unsupported answer.
 
-```mermaid
-flowchart LR
-    D["Documents"] --> R["Retrieval"]
-    Q["Question"] --> R
-    R --> C["Relevant passages"]
-    C --> G["Generation"]
-    G --> A["Answer with references"]
-```
-
 ## 12. Extensions: what changes, and when
 
 | Mechanism | Role and application point |
@@ -282,19 +225,6 @@ Example: load a bug investigation skill, format after an edit with a hook, and s
 
 **A useful request states the goal, context, constraints, and completion criteria.**
 
-```mermaid
-flowchart LR
-    G["Goal"]
-    B["Background"]
-    C["Constraints"]
-    D["Completion criteria"]
-    P["One clear prompt"]
-    G --> P
-    B --> P
-    C --> P
-    D --> P
-```
-
 - A useful prompt includes the goal, relevant background, constraints, expected output, and a way to judge success.
 - Provide examples when the desired result is difficult to describe.
 
@@ -315,15 +245,6 @@ Success: Identify breaking changes and clearly label uncertainties.
 ## 13. Using Instructions
 
 **Instructions are the shared rules for work in their scope.**
-
-```mermaid
-flowchart LR
-    I["Project rules"]
-    A["Fix a bug"]
-    B["Write documentation"]
-    I --> A
-    I --> B
-```
 
 - Instructions describe rules that should apply repeatedly.
 - Depending on the product, they may live in personal settings, workspace configuration, repository files, or API messages.
@@ -356,17 +277,6 @@ flowchart LR
 ## 14. Building and Using Skills
 
 **A skill packages the steps for a recurring task.**
-
-```mermaid
-flowchart LR
-    S["Select a suitable skill"]
-    R["Read the procedure"]
-    W["Perform the steps"]
-    V["Check the result"]
-    S --> R
-    R --> W
-    W --> V
-```
 
 - A skill packages a repeatable task with instructions and, where supported, scripts, templates, and references.
 - Good candidates include release preparation, environment setup, incident triage, and documentation review.
@@ -403,15 +313,6 @@ Use this procedure when reviewing project documentation.
 
 ### How Instructions and Skills Apply
 
-```mermaid
-flowchart TD
-    I["AGENTS.md: shared rules"] --> W["Task"]
-    S["learning_note: selected procedure"] --> W
-    W --> E["English note"]
-    E --> J["Japanese translation"]
-    J --> V["Validation"]
-```
-
 ### Instructions vs. Skills
 
 **Instructions define the rules; a skill supplies the procedure.**
@@ -436,18 +337,6 @@ For a cooking analogy, “avoid an allergenic ingredient” is a rule; “chop, 
 
 ### This Repository's Example
 
-```mermaid
-flowchart TD
-    T["Documentation request"]
-    I["Instructions: write both languages"]
-    S["Skill: research, draft, translate, check"]
-    R["Bilingual notes and validation results"]
-    T --> I
-    T --> S
-    I --> R
-    S --> R
-```
-
 - `AGENTS.md` says to create English documentation with a matching `_jp.md` translation and to avoid empty directories.
 - These rules also apply when working without a skill.
 
@@ -455,17 +344,6 @@ flowchart TD
 - Its templates help give notes a consistent starting structure.
 
 ### Using learning_note
-
-```mermaid
-flowchart LR
-    T["Request a topic"]
-    L["Discover and load the skill"]
-    W["Follow the procedure"]
-    V["Inspect artifacts and observed results"]
-    T --> L
-    L --> W
-    W --> V
-```
 
 - The skill is stored in `.agents/skills/learning_note/`, a repository skill location supported by Codex.
 - Discovery and invocation can vary by host and version.
@@ -487,20 +365,6 @@ Include a safe runnable example and official references.
 
 **An agent uses results to decide the next step.**
 
-```mermaid
-flowchart LR
-    G["Goal"]
-    A["Choose an operation"]
-    T["Execute"]
-    R["Inspect the result"]
-    D["Report completion with evidence"]
-    G --> A
-    A --> T
-    T --> R
-    R --> A
-    R --> D
-```
-
 - An agent combines a goal, context, tools, and a control loop to perform multiple steps.
 - A useful loop is: inspect the situation, choose an action, execute it, evaluate the result, and continue or stop.
 
@@ -521,17 +385,6 @@ flowchart LR
 ## 16. Output Formats and Quality Evaluation
 
 **A well-formatted answer still needs its content checked.**
-
-```mermaid
-flowchart LR
-    O["Generated output"]
-    F["Check format"]
-    C["Check evidence and behavior"]
-    R["Use the result"]
-    O --> F
-    F --> C
-    C --> R
-```
 
 - Choose Markdown for human-readable explanations, tables for comparisons, and structured data for downstream software.
 - Provide templates when a stable layout matters.
@@ -567,6 +420,9 @@ flowchart LR
 
 **Assumed example, not an execution record:** `/workspace/calculator` contains a Python project with `pytest` installed. Zero division currently returns `0`; the requested behavior is to raise `ValueError`. The user requests a fix and local verification, without publishing it.
 
+<details>
+<summary>Inspect the detailed execution sequence</summary>
+
 ```mermaid
 sequenceDiagram
     participant U as User
@@ -591,6 +447,8 @@ sequenceDiagram
     H-->>U: Answer and artifact links
 ```
 
+</details>
+
 **Proposed change:**
 
 ```diff
@@ -604,22 +462,11 @@ sequenceDiagram
 - Check both the zero-denominator exception and ordinary division. A green test run supports the cases actually tested.
 - If tests fail, pass their output back to the model and repeat the edit/check loop. If they cannot run, report that verification is incomplete.
 - Issue search through MCP can be added if needed; this local fix does not require it.
-- **LLM generates → harness coordinates → tools execute → results become context.** This is the same cycle as the overview diagram.
+- **LLM generates → harness coordinates → tools execute → results become context.** This is the cycle shown in the opening image.
 
 ## 18. Operating Safely
 
 **Treat retrieved text as information; permissions are enforced by the host.**
-
-```mermaid
-flowchart LR
-    D["External document"]
-    C["Use as reference"]
-    H["Host checks permissions"]
-    T["Permitted tool operation"]
-    D --> C
-    C --> H
-    H --> T
-```
 
 - Keep credentials in approved secret stores and avoid copying them into prompts, repositories, or logs.
 - Share only the information needed for the task and check the service's retention and data-use settings.
@@ -734,16 +581,13 @@ Check the chain **input → model output → harness → tool → external servi
 
 </details>
 
-## Diagram sources and validation
+## About the illustration
 
-- PNGs are generated from [this script](scripts/render_agent_diagrams.py). Prerequisites: Python 3, Graphviz's `dot` on `PATH`, and Noto Sans CJK JP / DejaVu Sans fonts for matching typography. No third-party Python package is needed.
-- From the repository root, run:
-
-```bash
-python learning/ai/scripts/render_agent_diagrams.py
-```
-
-- Expected output: four English and four Japanese PNGs under `learning/ai/assets/agent_architecture/`. The same layouts and relationships are used in both languages.
+- The opening image is a newly generated conceptual infographic inspired by the supplied visual reference. Both languages use matching layouts and relationships.
+- [Open the image](assets/agent_architecture/overview_infographic_en.png) to inspect it at full size.
+- Its [design specification](assets/agent_architecture/infographic_design.json) records the layout and relationships. Image generation does not guarantee pixel-identical reproduction.
+- The existing Graphviz script remains available for legacy diagrams; it does not generate the new infographic.
+- The detailed execution sequence remains in a collapsible Mermaid block; its rendering was not checked in this change.
 
 ## References
 
