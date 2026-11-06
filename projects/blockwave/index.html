@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111016" />
+    <meta name="description" content="ひとつずつ積んで、すっきり消す。ブラウザでもターミナルでも遊べるTypeScriptのテトリス。" />
+    <title>BLOCKWAVE — その一手に、没頭しよう。</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar wrap">
+        <a class="brand" href="/" aria-label="BLOCKWAVE ホーム"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>BLOCKWAVE<span class="brand-caption">FALL INTO THE FLOW</span></span></a>
+        <div class="header-actions"><button class="quiet-button" id="help">遊び方 <span>↗</span></button><button class="icon-button" id="sound" aria-label="サウンドをオンにする" aria-pressed="false">♪<span class="sound-slash"></span></button></div>
+      </header>
+      <main class="wrap">
+        <section class="intro"><div><div class="eyebrow"><span class="status-dot"></span> A LITTLE FOCUS. A LOT OF FLOW.</div><h1>その一手に、没頭しよう<span>。</span></h1><p>積んで、揃えて、消していく。いつものテトリスを、心地よく。</p></div><div class="platform-tabs" aria-label="実行環境"><span class="tab active"><span>▣</span> ブラウザ</span><button class="tab" id="terminal"><span>›_</span> ターミナル</button></div></section>
+        <section class="game-layout" aria-label="テトリスゲーム">
+          <aside class="left-rail">
+            <section class="panel hold-panel"><div class="panel-label">HOLD <kbd>C</kbd></div><canvas id="hold" width="160" height="90" role="img" aria-label="ホールド中のブロックはありません"></canvas><p id="hold-hint">ブロックをキープ</p></section>
+            <section class="panel score-panel"><div class="panel-label">SCORE</div><div class="score" id="score">000000</div><div class="best"><span>BEST</span><span id="best">000000</span></div><div class="stat-divider"></div><div class="stat-row"><span>LEVEL</span><strong id="level">01</strong></div><div class="stat-row"><span>LINES</span><strong id="lines">00</strong></div><div class="level-track"><span id="progress"></span></div><p class="level-hint" id="level-hint">あと10ラインでレベルアップ</p></section>
+            <div class="little-note"><span class="note-spark">✧</span><p>ひと息つきたいときは<br><kbd>P</kbd> で一時停止。</p></div>
+          </aside>
+          <div class="board-column"><div class="board-top"><span><span class="status-dot" id="play-dot"></span><span id="play-state">READY WHEN YOU ARE</span></span><div><button class="small-icon" id="restart" aria-label="ゲームをリスタート">↻</button><button class="small-icon" id="pause" aria-label="ゲームを一時停止" disabled>Ⅱ</button></div></div><div class="board-shell"><canvas id="board" width="300" height="600" role="img" aria-label="10列20行のテトリス盤面"></canvas><div class="board-overlay" id="overlay"><div class="overlay-icon" aria-hidden="true">✦</div><div class="eyebrow" id="overlay-eyebrow">FIND YOUR FLOW</div><h2 id="overlay-title">さあ、はじめよう。</h2><p id="overlay-description">次の一手は、あなた次第。</p><button class="primary-button" id="start"><span id="start-label">ゲームをはじめる</span><span>→</span></button><span class="enter-hint" id="enter-hint"><kbd>Enter</kbd> キーでもスタート</span></div><div id="clear-toast" aria-live="polite"></div></div><div class="board-bottom"><span><i></i> MARATHON</span><button id="ghost-toggle" aria-pressed="true"><span class="toggle-track"><i></i></span> 着地点ガイド</button></div></div>
+          <aside class="right-rail"><section class="panel next-panel"><div class="panel-label">NEXT <span>次のブロック</span></div><canvas id="next" width="160" height="300" role="img" aria-label="次のブロック"></canvas><div class="bag-note"><span class="tiny-block"></span> 7-BAG RANDOMIZER</div></section><section class="tip"><span class="eyebrow">ONE MORE LINE</span><p>横一列を揃えてクリア。<br>4列同時で、<br><span>大きなスコアに。</span></p><div class="tiny-line" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></section></aside>
+        </section>
+        <div class="touch-controls" aria-label="タッチ操作"><button data-action="hold" aria-label="ホールド">HOLD</button><button data-action="ccw" aria-label="左回転">↶</button><button data-action="cw" aria-label="右回転">↷</button><button data-action="drop" class="drop-touch" aria-label="ハードドロップ">DROP ↓</button><button data-action="left" aria-label="左に移動">←</button><button data-action="down" aria-label="ソフトドロップ">↓</button><button data-action="right" aria-label="右に移動">→</button><button data-action="pause" aria-label="一時停止">Ⅱ</button></div>
+        <section class="controls-strip" aria-label="キーボード操作"><div><span class="key-pair"><kbd>←</kbd><kbd>→</kbd></span><span>移動</span></div><div><span class="key-pair"><kbd>↑</kbd><kbd>X</kbd></span><span>右回転</span></div><div><kbd>Z</kbd><span>左回転</span></div><div><kbd>↓</kbd><span>落下</span></div><div><kbd class="space-key">Space</kbd><span>一気に落下</span></div><div><kbd>C</kbd><span>ホールド</span></div></section>
+        <section class="terminal-banner"><span class="terminal-glyph" aria-hidden="true">›_</span><div><strong>いつものターミナルでも。</strong><p>同じゲーム、同じ操作。TypeScriptで、どこでもプレイ。</p></div><button id="source-info">ソースをダウンロード <span>↗</span></button></section>
+      </main>
+      <footer class="wrap"><span>BLOCKWAVE <span class="footer-cross">×</span> BUILT WITH TYPESCRIPT</span><span>JUST ONE MORE GAME. <span class="footer-block">■</span></span></footer>
+      <dialog id="help-dialog"><button class="dialog-close" aria-label="閉じる">×</button><div class="eyebrow">HOW TO PLAY</div><h2>揃えて、消して、<br>自分のペースで。</h2><p>落ちてくるブロックを動かして、横一列を隙間なく埋めましょう。10ライン消すたびにレベルが上がり、落下が速くなります。</p><dl><div><dt>← → / A D</dt><dd>左右に移動</dd></div><div><dt>↑ / X ・ Z</dt><dd>右回転 ・ 左回転</dd></div><div><dt>↓ / S ・ Space</dt><dd>ゆっくり落下 ・ 一気に落下</dd></div><div><dt>C ・ P / Esc</dt><dd>ホールド ・ 一時停止</dd></div><div><dt>Enter ・ R</dt><dd>開始 / 再開 ・ リスタート</dd></div></dl><p class="dialog-note">ホールドはブロックを固定するまで1回。着地点ガイドは盤面下のスイッチで切り替えられます。スマートフォンでは画面下のボタンで操作できます。</p><button class="primary-button dialog-done">わかった <span>→</span></button></dialog>
+      <dialog id="terminal-dialog"><button class="dialog-close" aria-label="閉じる">×</button><div class="eyebrow">PLAY IT YOUR WAY</div><h2>ブラウザから、<br>ターミナルへ。</h2><p>GitHubからリポジトリのZIPをダウンロードして展開し、projects/blockwave で実行してください。Node.js 22.12以降が必要です。</p><pre><span># 初回だけ</span>
+npm ci
+
+<span># ターミナルで遊ぶ</span>
+npm run play
+
+<span># ブラウザで遊ぶ</span>
+npm run dev</pre><p class="dialog-note">どちらも同じTypeScriptのゲームロジックを使用。テストと日本語READMEも同梱しています。</p><a class="primary-button" href="https://github.com/rtnk16/dev-lab/archive/refs/heads/main.zip">リポジトリのZIPをダウンロード <span>↓</span></a></dialog>
+      <div class="sr-only" id="announcer" aria-live="polite"></div>
+    </div>
+    <script type="module" src="/src/web/main.ts"></script>
+  </body>
+</html>

@@ -19,6 +19,12 @@ dev-lab/
 │       ├── agent_architecture_jp.md
 │       ├── local_llm_environment.md
 │       └── local_llm_environment_jp.md
+├── projects/
+│   └── blockwave/
+│       ├── README.md
+│       ├── README_jp.md
+│       ├── src/
+│       └── tests/
 ├── .gitignore
 ├── AGENTS.md
 ├── AGENTS_jp.md
@@ -45,3 +51,7 @@ dev-lab/
 
 - [Procedure](.agents/skills/learning_note/SKILL.md) ([日本語](.agents/skills/learning_note/SKILL_jp.md))
 - [Instructions vs. skills and usage](learning/ai/AI_GUIDE.md#instructions-vs-skills) ([日本語](learning/ai/AI_GUIDE_jp.md#instructions-と-skills-の違い))
+
+## Projects
+
+- [BLOCKWAVE](projects/blockwave/README.md) ([日本語](projects/blockwave/README_jp.md)) — a TypeScript Tetris game for the browser and terminal, with a shared engine, touch controls, and automated tests.

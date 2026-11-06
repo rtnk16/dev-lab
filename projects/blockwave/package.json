@@ -1,0 +1,22 @@
+{
+  "name": "blockwave-tetris",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared TypeScript Tetris for the browser and terminal",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "play": "npm run build:terminal && node build/terminal/index.js",
+    "typecheck": "tsc --noEmit",
+    "build:terminal": "tsc -p tsconfig.build.json",
+    "build": "npm run typecheck && npm run build:terminal && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "tsc -p tsconfig.test.json && node --test .test-build/tests/*.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.2"
+  }
+}

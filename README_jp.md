@@ -19,6 +19,12 @@ dev-lab/
 │       ├── agent_architecture_jp.md
 │       ├── local_llm_environment.md
 │       └── local_llm_environment_jp.md
+├── projects/
+│   └── blockwave/
+│       ├── README.md
+│       ├── README_jp.md
+│       ├── src/
+│       └── tests/
 ├── .gitignore
 ├── AGENTS.md
 ├── AGENTS_jp.md
@@ -45,3 +51,7 @@ dev-lab/
 
 - [手順（英語）](.agents/skills/learning_note/SKILL.md)（[日本語](.agents/skills/learning_note/SKILL_jp.md)）
 - [Instructions と Skills の違い・使い方（英語）](learning/ai/AI_GUIDE.md#instructions-vs-skills)（[日本語](learning/ai/AI_GUIDE_jp.md#instructions-と-skills-の違い)）
+
+## プロジェクト
+
+- [BLOCKWAVE](projects/blockwave/README_jp.md)（[English](projects/blockwave/README.md)）— 共通エンジン、タッチ操作、自動テストを備えた、ブラウザとターミナルで遊べるTypeScriptのテトリスゲームです。
