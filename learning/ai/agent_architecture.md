@@ -44,6 +44,174 @@ UI and harness may share an application or run in separate services. Model infer
 
 These are usage categories, not exclusive classes. Assistants can include agent features, and products are distinct from models. Related products need not share an application or harness. Changing the model need not replace the harness, although available tools or settings may change.
 
+### 3.1 Reading the product diagrams: actors, environments, and I/O
+
+The following examples use **Codex CLI, Claude Code CLI, and GitHub Copilot CLI with cloud model inference**. Claude here means Claude Code; Copilot means GitHub Copilot. Section 3.7 distinguishes browser, IDE, and cloud execution modes.
+
+- **A: user; B: UI; C: agent execution control (harness); D1: model inference; D2: tools performing operations.** The identifiers match across products.
+- Large boxes mark execution environments; arrows show data flow. UI and harness are logical roles, not necessarily separate processes.
+- The CLI execution environment need not be the user's PC. When launched on an SSH host or in a development container, ordinary file and shell operations run there.
+- **Context** is the information supplied for this call: the prompt, applicable instructions, selected skill content, conversation, retrieved files/search results, and prior tool results. Tool definitions describe operation names, descriptions, and argument schemas.
+- Instructions and skills are stored information, not necessarily independent running programs.
+
+### 3.2 Codex CLI
+
+The Codex CLI UI, harness, and ordinary file/shell operations are on the CLI execution host. This example uses OpenAI model inference. The harness incorporates relevant AGENTS.md and skill content into model input. A local model provider can also be configured, changing D1's location. [O1][O2][O3]
+
+```mermaid
+flowchart TB
+    U["A. User"]
+    subgraph LOCAL["CLI execution environment: PC, SSH host, or container"]
+        B["B. Codex CLI<br/>Terminal UI"]
+        H["C. Codex harness<br/>Manage loop, input, execution, permissions"]
+        F["AGENTS.md / Skills<br/>Settings and conversation history"]
+        T["D2. File tools, Shell, Git"]
+    end
+    subgraph CLOUD["Cloud: model inference service"]
+        M["D1. OpenAI model inference service"]
+    end
+    U -->|"Request, clarification, approval"| B
+    B -->|"Display answer, progress, questions"| U
+    B -->|"Request and user actions"| H
+    H -->|"Answer, progress, diffs, questions"| B
+    F -->|"Instructions, procedures, settings, history"| H
+    H -->|"Context and tool definitions"| M
+    M -->|"Answer OR tool name and arguments"| H
+    H -->|"Permitted operation, paths, arguments"| T
+    T -->|"Contents, change results, logs, exit code"| H
+    classDef control fill:#dbeafe,stroke:#2563eb,color:#172554
+    classDef model fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef data fill:#fef3c7,stroke:#ca8a04,color:#422006
+    class H control
+    class M model
+    class F data
+```
+
+### 3.3 Claude Code CLI
+
+The Claude Code UI, harness, and ordinary file/shell operations run where claude is launched. Model inference in this example uses a Claude model API. CLAUDE.md and selected skill content contribute to input. This is terminal use, distinct from ordinary Claude chat. [A1][A2]
+
+```mermaid
+flowchart TB
+    U["A. User"]
+    subgraph LOCAL["CLI execution environment: PC, SSH host, or container"]
+        B["B. Claude Code CLI<br/>Terminal UI"]
+        H["C. Claude Code harness<br/>Manage loop, input, execution, permissions"]
+        F["CLAUDE.md / Skills<br/>Settings and conversation history"]
+        T["D2. File tools, Shell, Git"]
+    end
+    subgraph CLOUD["Cloud: model inference service"]
+        M["D1. Claude model API"]
+    end
+    U -->|"Request, clarification, approval"| B
+    B -->|"Display answer, progress, questions"| U
+    B -->|"Request and user actions"| H
+    H -->|"Answer, progress, diffs, questions"| B
+    F -->|"Instructions, procedures, settings, history"| H
+    H -->|"Context and tool definitions"| M
+    M -->|"Answer OR tool name and arguments"| H
+    H -->|"Permitted operation, paths, arguments"| T
+    T -->|"Contents, change results, logs, exit code"| H
+    classDef control fill:#dbeafe,stroke:#2563eb,color:#172554
+    classDef model fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef data fill:#fef3c7,stroke:#ca8a04,color:#422006
+    class H control
+    class M model
+    class F data
+```
+
+### 3.4 GitHub Copilot CLI
+
+The Copilot CLI UI, execution control, and ordinary file/shell operations are on the CLI host. This example reaches the selected model through GitHub Copilot services. The LLM is not one fixed model; available models and configuration determine the choice. BYOK and local model configurations are also supported. [G1][G2]
+
+```mermaid
+flowchart TB
+    U["A. User"]
+    subgraph LOCAL["CLI execution environment: PC, SSH host, or container"]
+        B["B. GitHub Copilot CLI<br/>Terminal UI"]
+        H["C. Copilot CLI harness<br/>Manage loop, input, execution, permissions"]
+        F["Copilot instructions / Skills<br/>Settings and conversation history"]
+        T["D2. File tools, Shell, Git"]
+    end
+    subgraph CLOUD["Cloud: model inference service"]
+        M["D1. Copilot service / selected model"]
+    end
+    U -->|"Request, clarification, approval"| B
+    B -->|"Display answer, progress, questions"| U
+    B -->|"Request and user actions"| H
+    H -->|"Answer, progress, diffs, questions"| B
+    F -->|"Instructions, procedures, settings, history"| H
+    H -->|"Context and tool definitions"| M
+    M -->|"Answer OR tool name and arguments"| H
+    H -->|"Permitted operation, paths, arguments"| T
+    T -->|"Contents, change results, logs, exit code"| H
+    classDef control fill:#dbeafe,stroke:#2563eb,color:#172554
+    classDef model fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef data fill:#fef3c7,stroke:#ca8a04,color:#422006
+    class H control
+    class M model
+    class F data
+```
+
+### 3.5 Inputs and outputs of each actor
+
+The basic roles are shared across the three products. UI/harness implementations, loading rules, and supported tools differ.
+
+| Actor | Environment | Input | Output |
+| --- | --- | --- | --- |
+| A. User | User of the UI | Displayed answers, progress, questions | Request, clarification, approval/rejection, cancellation |
+| B. UI | CLI execution host in these examples | User input and harness events | Requests/actions to harness; display to user |
+| C. Harness | CLI execution host in these examples | Request, instructions/settings/history, model output, tool results | Model input, permitted tool operations, UI events |
+| D1. Model inference service | Cloud in these examples | Context, tool definitions, etc. | Answers and action requests such as tool names and arguments |
+| D2. File operation tools | Environment with access to the working filesystem | Paths, read ranges, edit content | File contents, change results, errors |
+| D2. Shell, Git, etc. | CLI execution host in these examples | Command, arguments, working directory | stdout/stderr, exit code, artifacts |
+| External service | Provider infrastructure or an internal server | Authenticated API request and arguments | Data, operation results, errors |
+
+Files are data; file tools perform reads and writes. Git is a program that can run through a shell. In addition to local operations, push and fetch communicate with a remote server.
+
+Example: Run the tests → UI → harness → LLM → request to run pytest -q through Shell → harness → Shell → logs and exit code → harness → LLM → explanation → UI → user. The loop can repeat when needed.
+
+### 3.6 Where MCP and extensions fit
+
+MCP is a communication protocol. **MCP clients and MCP servers** are the running components. With the appropriate connection configured, all three products can use the following path from their harness. [M1]
+
+```text
+Harness → MCP client [agent side]
+        → MCP server [CLI execution host or remote host]
+        → External service when needed [service environment]
+
+Request: capability discovery, or a tool name and arguments, etc.
+Response: capability definitions, data, operation results/errors, etc.
+```
+
+Typical connections use stdio for a local child process and Streamable HTTP for a remote server. A local server can also use HTTP. A server operating on its own filesystem need not call an external service. Relevant returned content can become model input through the harness.
+
+| Component | Storage / execution environment | Input → output |
+| --- | --- | --- |
+| Instructions and skills | Files/settings accessible to the agent | Loading/selection → instructions, procedures, references; script execution goes through tools |
+| Hooks | Command handlers usually run in the agent execution environment; HTTP handlers run at configured endpoints | Events/arguments → completion status, logs, supported control data, etc. |
+| Claude Code Mods | Claude Code internal extension mechanism | Exposed events/settings → supported behavior changes, UI output, etc. |
+| Copilot CLI Extensions | Separate Node.js processes alongside the CLI | Events, tool/command calls → tool results, session behavior, etc. |
+| Plugins | Distribution/installation units; execution depends on bundled components | Installation/loading → register skills, hooks, MCP configuration, etc. |
+
+The table does not imply that every product supports every extension. Mods refer here to Claude Code; CLI Extensions refer to GitHub Copilot CLI. [A3][G3]
+
+### 3.7 Browser, IDE, and cloud modes
+
+**UI location alone does not determine where the harness and tools run.** The diagrams above are CLI examples; distinguish these modes instead of inferring deployment from a product name.
+
+| Mode | UI location | Harness and ordinary working tools |
+| --- | --- | --- |
+| Codex local CLI / IDE session | Terminal / IDE | Selected local or development environment |
+| Codex Cloud task | Browser, desktop, etc. | OpenAI-managed infrastructure; working files in a cloud workspace |
+| Claude Code local CLI / IDE session | Terminal / IDE | Environment where Claude Code was launched |
+| Claude Code cloud session | Browser, etc. | Anthropic cloud working environment |
+| Claude Code Remote Control | Browser / mobile, etc. | Continues on the original Claude Code execution machine |
+| Copilot CLI / IDE local session | Terminal / IDE | CLI host or the selected IDE agent execution environment |
+| Copilot cloud agent | GitHub, etc. | Configured cloud environment / runner |
+
+Remote development and cloud delegation change execution locations. The model inference service is chosen separately and need not share the agent host. These CLI diagrams also cannot be directly applied to the internals of ordinary ChatGPT or Claude chat. [O4][A4][A5][G4][G5]
+
 ## 4. Implementation and OS processes
 
 Agent control is ordinary software. It can be implemented in C/C++, Python, TypeScript, Rust, or other languages and runs as one or more OS processes or distributed services. Languages and process counts vary by product.
@@ -597,3 +765,19 @@ Check the chain **input → model output → harness → tool → external servi
 - [MCP: Architecture](https://modelcontextprotocol.io/docs/learn/architecture) and [specification](https://modelcontextprotocol.io/specification) — roles, capabilities, and versioned transport details.
 - [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) — workflows and agents.
 - [Docker: What is a container?](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/) — containers and isolation.
+
+- [O1] [OpenAI: Codex CLI](https://github.com/openai/codex)
+- [O2] [OpenAI: Codex harness / App Server](https://openai.com/index/unlocking-the-codex-harness/)
+- [O3] [OpenAI: Advanced configuration](https://learn.chatgpt.com/docs/config-file/config-advanced)
+- [O4] [OpenAI: Using Codex Cloud](https://help.openai.com/en/articles/20001545-using-codex-cloud)
+- [A1] [Anthropic: How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works)
+- [A2] [Anthropic: Claude Code](https://claude.com/product/claude-code)
+- [A3] [Anthropic: Claude Code Mods](https://code.claude.com/docs/en/plugins/mods/overview)
+- [A4] [Anthropic: Remote Control](https://code.claude.com/docs/en/remote-control)
+- [A5] [Anthropic: Claude Code in the cloud](https://support.claude.com/en/articles/12618689-use-claude-code-in-the-cloud)
+- [G1] [GitHub: Copilot customization](https://docs.github.com/en/copilot/concepts/customizations/comparing-customizations)
+- [G2] [GitHub: CLI BYOK and local models](https://github.blog/changelog/2026-04-07-copilot-cli-now-supports-byok-and-local-models/)
+- [G3] [GitHub: Copilot extensions](https://docs.github.com/en/copilot/concepts/customizations/extensions)
+- [G4] [GitHub: Copilot cloud agent](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-on-github)
+- [G5] [VS Code: Agent harnesses](https://code.visualstudio.com/docs/agents/run/agent-harnesses)
+- [M1] [MCP: Architecture](https://modelcontextprotocol.io/docs/learn/architecture)

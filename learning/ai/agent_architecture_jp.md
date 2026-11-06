@@ -44,6 +44,174 @@ UIとHarnessは同じアプリ内にも、別々のサービスにも配置で�
 
 これは用途の整理であり、排他的な分類ではありません。アシスタントにもエージェント機能があり、製品とモデルは別です。関連する製品同士でも同一のアプリ・Harnessとは限りません。モデルを切り替えてもHarness自体が変わるとは限りません。ただし、対応ツールや設定が変わることはあります。
 
+### 3.1 製品別の見方：登場人物・実行環境・入出力
+
+以下は、**Codex CLI・Claude Code CLI・GitHub Copilot CLIを起動し、クラウドのモデルを利用する構成例**です。ClaudeはClaude Code、CopilotはGitHub Copilotを指します。ブラウザ・IDE・クラウド実行との違いは3.7節で示します。
+
+- **A：ユーザー、B：UI、C：エージェントの実行制御（Harness）、D1：モデル推論、D2：操作を実行するTools**。3製品で同じ記号を使います。
+- 図の大きな枠は実行環境、矢印はデータの流れです。UIとHarnessは役割の区分で、別プロセスとは限りません。
+- 「CLIを起動した環境」は手元PCとは限りません。SSH先や開発コンテナで起動した場合、通常のファイル操作・Shell実行もその環境で行われます。
+- **コンテキスト**は、Prompt、適用されるInstructions、選択したSkillの内容、会話、取得したファイル・検索結果、過去のツール結果など、今回のモデル呼び出しへ渡す情報です。ツール定義では操作名・説明・引数の形式を伝えます。
+- InstructionsやSkillsは保存された情報です。図にあるだけで、独立したプログラムとして実行されるわけではありません。
+
+### 3.2 Codex CLI
+
+Codex CLIのUI、Harness、通常のファイル・Shell操作はCLIの実行環境側にあります。図ではOpenAIのモデルを利用します。`AGENTS.md`やSkillsの必要な内容はHarnessがモデル入力に組み込みます。ローカルモデルの設定も可能ですが、その場合はD1の場所が変わります。[O1][O2][O3]
+
+```mermaid
+flowchart TB
+    U["A. ユーザー"]
+    subgraph LOCAL["CLIを起動した環境：PC・SSH先・コンテナなど"]
+        B["B. Codex CLI<br/>ターミナルUI"]
+        H["C. Codex harness<br/>ループ・入力・実行・権限を管理"]
+        F["AGENTS.md / Skills<br/>設定・会話履歴など"]
+        T["D2. ファイル操作・Shell・Git"]
+    end
+    subgraph CLOUD["クラウド：モデル推論のサービス"]
+        M["D1. OpenAI側のモデル推論サービス"]
+    end
+    U -->|"依頼・補足・承認"| B
+    B -->|"回答・進捗・確認の表示"| U
+    B -->|"依頼・ユーザー操作"| H
+    H -->|"回答・進捗・差分・確認要求"| B
+    F -->|"指示・手順・設定・履歴"| H
+    H -->|"コンテキスト・ツール定義"| M
+    M -->|"回答 または ツール名と引数"| H
+    H -->|"許可された操作・パス・引数"| T
+    T -->|"内容・変更結果・ログ・終了コード"| H
+    classDef control fill:#dbeafe,stroke:#2563eb,color:#172554
+    classDef model fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef data fill:#fef3c7,stroke:#ca8a04,color:#422006
+    class H control
+    class M model
+    class F data
+```
+
+### 3.3 Claude Code CLI
+
+Claude CodeのUI、Harness、通常のファイル・Shell操作は`claude`を起動した環境側にあります。モデルの推論は図ではClaudeモデルAPI側です。`CLAUDE.md`や選択したSkillの内容を入力に加えます。図はターミナル利用を示し、通常のClaudeチャットとは区別します。[A1][A2]
+
+```mermaid
+flowchart TB
+    U["A. ユーザー"]
+    subgraph LOCAL["CLIを起動した環境：PC・SSH先・コンテナなど"]
+        B["B. Claude Code CLI<br/>ターミナルUI"]
+        H["C. Claude Code harness<br/>ループ・入力・実行・権限を管理"]
+        F["CLAUDE.md / Skills<br/>設定・会話履歴など"]
+        T["D2. ファイル操作・Shell・Git"]
+    end
+    subgraph CLOUD["クラウド：モデル推論のサービス"]
+        M["D1. ClaudeモデルAPI"]
+    end
+    U -->|"依頼・補足・承認"| B
+    B -->|"回答・進捗・確認の表示"| U
+    B -->|"依頼・ユーザー操作"| H
+    H -->|"回答・進捗・差分・確認要求"| B
+    F -->|"指示・手順・設定・履歴"| H
+    H -->|"コンテキスト・ツール定義"| M
+    M -->|"回答 または ツール名と引数"| H
+    H -->|"許可された操作・パス・引数"| T
+    T -->|"内容・変更結果・ログ・終了コード"| H
+    classDef control fill:#dbeafe,stroke:#2563eb,color:#172554
+    classDef model fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef data fill:#fef3c7,stroke:#ca8a04,color:#422006
+    class H control
+    class M model
+    class F data
+```
+
+### 3.4 GitHub Copilot CLI
+
+Copilot CLIのUI、実行制御、通常のファイル・Shell操作はCLIの実行環境側にあります。図ではGitHub Copilotのサービスを経由して選択したモデルを使います。LLMは単一の固定モデルではなく、利用可能なモデル・設定に依存します。BYOKやローカルモデルを使う構成もあります。[G1][G2]
+
+```mermaid
+flowchart TB
+    U["A. ユーザー"]
+    subgraph LOCAL["CLIを起動した環境：PC・SSH先・コンテナなど"]
+        B["B. GitHub Copilot CLI<br/>ターミナルUI"]
+        H["C. Copilot CLI harness<br/>ループ・入力・実行・権限を管理"]
+        F["Copilot instructions / Skills<br/>設定・会話履歴など"]
+        T["D2. ファイル操作・Shell・Git"]
+    end
+    subgraph CLOUD["クラウド：モデル推論のサービス"]
+        M["D1. Copilotサービス / 選択したモデル"]
+    end
+    U -->|"依頼・補足・承認"| B
+    B -->|"回答・進捗・確認の表示"| U
+    B -->|"依頼・ユーザー操作"| H
+    H -->|"回答・進捗・差分・確認要求"| B
+    F -->|"指示・手順・設定・履歴"| H
+    H -->|"コンテキスト・ツール定義"| M
+    M -->|"回答 または ツール名と引数"| H
+    H -->|"許可された操作・パス・引数"| T
+    T -->|"内容・変更結果・ログ・終了コード"| H
+    classDef control fill:#dbeafe,stroke:#2563eb,color:#172554
+    classDef model fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef data fill:#fef3c7,stroke:#ca8a04,color:#422006
+    class H control
+    class M model
+    class F data
+```
+
+### 3.5 各登場人物のinput / output
+
+3製品の基本構造は共通です。各製品のUIとHarnessの実装、読込規則、利用できるツールは異なります。
+
+| 登場人物 | 動く環境 | input | output |
+| --- | --- | --- | --- |
+| A. ユーザー | UIを使う側 | 表示された回答・進捗・確認 | 依頼、補足、承認・拒否、中断 |
+| B. UI | 上図ではCLIの実行環境 | ユーザー入力、Harnessからのイベント | Harnessへの依頼・操作、ユーザーへの表示 |
+| C. Harness | 上図ではCLIの実行環境 | 依頼、指示・設定・履歴、LLM出力、ツール結果 | LLMへの入力、許可されたツール実行、UI向けイベント |
+| D1. モデル推論サービス | 上図ではクラウド | コンテキスト、ツール定義など | 回答、ツール名と引数などの操作要求 |
+| D2. ファイル操作ツール | 作業用ファイルシステムへアクセスできる実行環境 | パス、読取範囲、編集内容 | ファイル内容、変更結果、エラー |
+| D2. Shell・Git等 | 上図ではCLIの実行環境 | コマンド、引数、作業ディレクトリ | 標準出力・標準エラー、終了コード、生成物 |
+| 外部サービス | サービス提供者の環境・社内サーバー等 | 認証付きAPI要求と引数 | データ、操作結果、エラー |
+
+ファイルはデータ、ファイル操作ツールはそのデータを読み書きする処理です。GitはShell経由などで起動するプログラムで、ローカル操作に加え、pushやfetchではリモートサーバーと通信します。
+
+例：`テストを実行して` → UI → Harness → LLM → `Shellでpytest -qを実行`という要求 → Harness → Shell → ログ・終了コード → Harness → LLM → 結果説明 → UI → ユーザー。必要ならこの途中のループが繰り返されます。
+
+### 3.6 MCPと拡張機能はどこに入るか
+
+MCPは通信方式です。実際に動く部品は**MCPクライアントとMCPサーバー**です。接続を設定すると、3製品とも基本図のHarnessから次の経路を利用できます。[M1]
+
+```text
+Harness → MCPクライアント［エージェント側］
+        → MCPサーバー［CLIの実行環境、またはリモート］
+        → 必要に応じて外部サービス［そのサービスの環境］
+
+行き：機能一覧の要求、またはツール名と引数など
+戻り：機能定義、データ、操作結果・エラーなど
+```
+
+代表例として、ローカルの子プロセスとはstdio、リモートサーバーとはStreamable HTTPで接続します。ローカルでHTTPサーバーを動かす構成もあります。MCPサーバーが自分でファイルを操作する場合は、外部サービスへの通信は不要です。取得した結果のうち必要な内容が、Harnessを通じてLLMの入力に加わります。
+
+| 対象 | 保存先／実行環境 | input → output |
+| --- | --- | --- |
+| Instructions・Skills | エージェントから読めるファイルや設定 | 読込・選択 → 指示、手順、参考資料。スクリプトを実行する場合はToolsへ |
+| Hooks | コマンド型は通常エージェントの実行環境。HTTP型などは設定先 | イベント・引数 → 終了状態、ログ、対応形式の制御情報など |
+| Claude Code Mods | Claude Code内部の拡張機構 | 公開イベント・設定 → 対応する挙動変更やUI表示など |
+| Copilot CLI Extensions | CLIと並行する別のNode.jsプロセス | イベント、ツール／コマンド呼出し → ツール結果やセッション動作など |
+| Plugins | 配布・導入の単位。実行場所は含まれる機能による | 導入・読込 → Skills、Hooks、MCP設定などを登録 |
+
+この表は全製品がすべての拡張に対応するという意味ではありません。ModsはここではClaude Code、CLI ExtensionsはGitHub Copilot CLI固有の例です。[A3][G3]
+
+### 3.7 ブラウザ・IDE・クラウドで使う場合
+
+**UIの場所だけでは、Harness・Toolsの場所は決まりません。** 上の3図はCLIの構成例であり、製品名だけで次の利用形態を混同しないようにします。
+
+| 利用形態 | UIの場所 | Harness・通常の作業用Toolsの場所 |
+| --- | --- | --- |
+| CodexのローカルCLI／IDEセッション | ターミナル／IDE | 選択したローカル・開発環境 |
+| Codex Cloudのタスク | ブラウザ、デスクトップなど | OpenAI側の管理された環境。作業用ファイルはクラウドのワークスペース |
+| Claude CodeのローカルCLI／IDEセッション | ターミナル／IDE | Claude Codeを起動した環境 |
+| Claude Code cloud session | ブラウザなど | Anthropic側のクラウド作業環境 |
+| Claude Code Remote Control | ブラウザ／スマホなど | 元のClaude Code実行マシンで動き続ける |
+| Copilot CLI／IDEのローカルセッション | ターミナル／IDE | CLIまたは選択したIDEエージェントの実行環境 |
+| Copilot cloud agent | GitHubなど | 設定されたクラウド環境／runner |
+
+IDEのリモート開発やクラウドへの委譲では、実行場所が変わります。LLMの推論サービスはこの表とは別に選ばれ、エージェントと同じマシンとは限りません。通常のChatGPT／Claudeチャットの内部構造に、このCLI図をそのまま当てはめることもできません。[O4][A4][A5][G4][G5]
+
 ## 4. 実装とOSプロセスの関係
 
 エージェントの制御部分は通常のソフトウェアです。C/C++、Python、TypeScript、Rustなどで実装でき、実行時には一つ以上のOSプロセスや分散サービスとして動作します。言語やプロセス数は製品ごとに異なります。
@@ -601,3 +769,19 @@ sequenceDiagram
 - [MCP: Architecture](https://modelcontextprotocol.io/docs/learn/architecture)と[仕様](https://modelcontextprotocol.io/specification) — 役割、機能、バージョン別の通信方式。
 - [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) — ワークフローとエージェント。
 - [Docker: What is a container?](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/) — コンテナと分離。
+
+- [O1] [OpenAI: Codex CLI](https://github.com/openai/codex)
+- [O2] [OpenAI: Codex harness / App Server](https://openai.com/index/unlocking-the-codex-harness/)
+- [O3] [OpenAI: Advanced configuration](https://learn.chatgpt.com/docs/config-file/config-advanced)
+- [O4] [OpenAI: Using Codex Cloud](https://help.openai.com/en/articles/20001545-using-codex-cloud)
+- [A1] [Anthropic: How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works)
+- [A2] [Anthropic: Claude Code](https://claude.com/product/claude-code)
+- [A3] [Anthropic: Claude Code Mods](https://code.claude.com/docs/en/plugins/mods/overview)
+- [A4] [Anthropic: Remote Control](https://code.claude.com/docs/en/remote-control)
+- [A5] [Anthropic: Claude Code in the cloud](https://support.claude.com/en/articles/12618689-use-claude-code-in-the-cloud)
+- [G1] [GitHub: Copilot customization](https://docs.github.com/en/copilot/concepts/customizations/comparing-customizations)
+- [G2] [GitHub: CLI BYOK and local models](https://github.blog/changelog/2026-04-07-copilot-cli-now-supports-byok-and-local-models/)
+- [G3] [GitHub: Copilot extensions](https://docs.github.com/en/copilot/concepts/customizations/extensions)
+- [G4] [GitHub: Copilot cloud agent](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-on-github)
+- [G5] [VS Code: Agent harnesses](https://code.visualstudio.com/docs/agents/run/agent-harnesses)
+- [M1] [MCP: Architecture](https://modelcontextprotocol.io/docs/learn/architecture)
