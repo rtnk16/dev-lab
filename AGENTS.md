@@ -15,13 +15,12 @@
 ## Documentation and Translation
 
 - Write for the intended reader using plain language. Introduce unfamiliar terms with a short definition before using them in detailed explanations.
-- For conceptual learning materials, prefer “short explanation → diagram → concrete example” for each major topic. Use a consistent example across related sections and move advanced details into optional or collapsible supplements when helpful.
-- Use diagrams actively to explain roles, relationships, information flow, execution locations, and boundaries. Split complex diagrams into focused views; do not impose a fixed diagram count or add decorative repetition.
-- Prefer Mermaid for editable flows and ASCII trees for directories. Add PNG illustrations when they improve readability, sharing, or compatibility with viewers that cannot render Mermaid. Keep editable sources or a reproducible generation script alongside the material and document generation prerequisites and commands.
-- Give diagrams descriptive labels and alt text, explain how to read them, and check text legibility, arrow direction, clipping, and consistency with the prose. Keep diagrams aligned between languages; report rendering checks that were not run.
-
-- Prefer concise bullet points, with one main idea per item. Use short prose only when it improves clarity.
-- Include diagrams where they clarify relationships, structure, or workflows. Prefer Mermaid for flows and ASCII trees for directories; avoid decorative or redundant diagrams.
+- Organize conceptual and architecture documents as “overall diagram and explanation → individual components.” State the purpose briefly, then explain the whole system before its parts. Use concrete examples within the relevant explanations rather than adding mandatory chapters.
+- For each relevant component, explain its responsibility, implementation form, execution environment, inputs, and outputs. For customization mechanisms, identify who loads or invokes them and what happens next. Distinguish files, libraries, software roles, and running processes.
+- Keep diagrams inside the Markdown document. Prefer fenced `mermaid` blocks for GitHub and ASCII trees for directories. Use fenced PlantUML only when the target viewer is known to support it; GitHub does not natively render PlantUML blocks.
+- Architecture documents must not depend on PNGs, separate diagram source files, or generation scripts. Create image exports only when explicitly requested.
+- Use focused diagrams to explain relationships, information flow, execution locations, and boundaries. Avoid decorative repetition. Give diagrams descriptive labels, explain how to read them, and check syntax, arrow direction, and consistency with the prose. Check rendering when possible and report unrun checks in the completion message.
+- Prefer concise bullet points with one main idea per item; use short prose where it makes the explanation clearer.
 - Keep diagrams consistent between English and Japanese versions; translate explanatory labels while preserving identifiers and behavior.
 
 - Write documentation in English first, then add a Japanese translation beside it using the `_jp.md` suffix: `README.md` → `README_jp.md`.

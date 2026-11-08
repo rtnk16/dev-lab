@@ -13,7 +13,8 @@ description: Create or update bilingual learning notes in dev-lab with sourced e
 - Follow the repository's `AGENTS.md`.
 - This procedure does not grant permission to commit, push, publish, install dependencies, or perform consequential external actions.
 
-- Prefer concise bullet points and include diagrams that aid understanding. Keep diagram structure and meaning aligned across languages.
+- Keep the note self-contained in Markdown: use inline Mermaid for GitHub diagrams and ASCII for directory trees. Follow `AGENTS.md` for other renderers and explicitly requested exports.
+- Present the overall diagram and explanation before individual components. Keep component responsibilities, implementation forms, execution environments, inputs/outputs, and loading or invocation relationships explicit where relevant. Keep structure and meaning aligned across languages.
 
 ```mermaid
 flowchart LR
@@ -25,11 +26,11 @@ flowchart LR
 1. **Inspect and scope.** Read repository instructions and related notes. Identify the topic, intended audience, and learning goal. Infer a reasonable beginner-friendly scope when unspecified; ask only if missing information prevents useful progress. Preserve existing work.
 2. **Choose a location.** Use `learning/<topic>/<subject>.md` and `<subject>_jp.md`, with lowercase `snake_case` names. Reuse suitable directories and notes. Create directories only when adding content.
 3. **Gather evidence.** Prefer official documentation and primary sources. Record source titles, URLs, and relevant versions. Distinguish facts, interpretations, and assumptions. If browsing is unavailable, disclose that references were not checked; do not invent sources or claim current verification.
-4. **Draft in English.** Start from [the template](templates/learning_note.md), adapting sections to the topic and removing unused sections and placeholders. Explain the purpose, core concepts, and at least one concrete example. Include limitations or common mistakes where helpful.
+4. **Draft in English.** Start from [the template](templates/learning_note.md), adapting it to the topic and removing unused sections and placeholders. Briefly state the purpose, then write the overall diagram and explanation followed by individual components. Place concrete examples and relevant limitations with the component they explain. Do not add fact-check, further-learning, or validation chapters unless requested or needed for the subject itself.
 5. **Validate examples.** For runnable examples, state prerequisites, commands, and expected results. Run safe, relevant examples when the environment supports them. Avoid destructive operations and unnecessary dependencies. Label observed results separately from expected results; report failures and unrun checks honestly. For conceptual topics, check that examples support the explanation instead of adding artificial execution steps.
 6. **Translate.** Create the Japanese version using [the Japanese template](templates/learning_note_jp.md). Preserve meaning, section order, examples, warnings, code, commands, paths, and identifiers. Translate explanatory text. Add reciprocal relative links.
 7. **Review.** Check factual support, translation consistency, relative-link targets, code fences, and whitespace. Use `git diff --check` for tracked changes and also inspect new files, which that command alone does not cover. Do not leave template placeholders in finished notes.
-8. **Report.** List created or updated files, key sources, checks performed, and limitations. Commit or push only within the user's authorized scope; use English commit messages and PR titles/descriptions.
+8. **Report.** List created or updated files, key sources, checks performed, and limitations in the completion message. Do not add a chapter to the note just to record authoring checks. Commit or push only within the user's authorized scope; use English commit messages and PR titles/descriptions.
 
 ## Completion Criteria
 

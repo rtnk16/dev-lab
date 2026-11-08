@@ -13,8 +13,6 @@ dev-lab/
 │   └── copilot-instructions_jp.md
 ├── learning/
 │   └── ai/
-│       ├── AI_GUIDE.md
-│       ├── AI_GUIDE_jp.md
 │       ├── agent_architecture.md
 │       ├── agent_architecture_jp.md
 │       ├── local_llm_environment.md
@@ -43,14 +41,12 @@ dev-lab/
 
 ## AI Learning Guides
 
-- AI tools and workflows: [English](learning/ai/AI_GUIDE.md) ([日本語](learning/ai/AI_GUIDE_jp.md))
 - Local LLM inference environments: [English](learning/ai/local_llm_environment.md) ([日本語](learning/ai/local_llm_environment_jp.md)) — GPU/VRAM/bandwidth, RTX and DGX examples, inference engines, open-weight models, and setup examples.
-- [A visual guide to AI agents](learning/ai/agent_architecture.md) ([日本語](learning/ai/agent_architecture_jp.md)) — eight diagrams, including PNG illustrations.
+- [AI agent architecture](learning/ai/agent_architecture.md) ([日本語](learning/ai/agent_architecture_jp.md)) — an overview diagram followed by components, execution environments, I/O, and customization mechanisms; diagrams are embedded Mermaid.
 
 ## Learning Note Skill
 
 - [Procedure](.agents/skills/learning_note/SKILL.md) ([日本語](.agents/skills/learning_note/SKILL_jp.md))
-- [Instructions vs. skills and usage](learning/ai/AI_GUIDE.md#instructions-vs-skills) ([日本語](learning/ai/AI_GUIDE_jp.md#instructions-と-skills-の違い))
 
 ## Projects
 

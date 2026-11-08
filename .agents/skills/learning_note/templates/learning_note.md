@@ -2,30 +2,30 @@
 
 [日本語]({{subject}}_jp.md)
 
-## Goal
+{{Briefly state the purpose, audience, and scope.}}
 
-- {{Audience, scope, and what the reader should understand.}}
+## Overall structure
 
-## Core Concepts
+```mermaid
+flowchart LR
+    INPUT["{{Input}}"] --> SYSTEM["{{System}}"]
+    SYSTEM --> OUTPUT["{{Output}}"]
+```
 
-- {{Explain the topic and distinguish facts from interpretations.}}
+{{Replace the example diagram with the actual structure. Explain how to read it, the relationships, boundaries, and the overall flow before detailing individual components. Keep the diagram inside this Markdown file.}}
 
-## Diagram
+## Components
 
-- {{Replace with a Mermaid or ASCII diagram explaining relationships, structure, or flow. Remove this section if unnecessary.}}
+### {{Component name}}
 
-## Example
+- **Responsibility:** {{What this component does.}}
+- **Implementation form:** {{File, library, program, process, or other concrete form.}}
+- **Execution environment:** {{Where it runs, or where stored data is loaded.}}
+- **Input / output:** {{What it receives and produces.}}
+- **Loading / invocation:** {{Who reads or invokes it and what happens next.}}
 
-- {{A concrete example. For runnable examples, include prerequisites, commands, and expected results.}}
-
-## Common Mistakes and Limitations
-
-- {{Relevant caveats. Remove this section if unnecessary.}}
-
-## Validation
-
-- {{Checks actually performed, observed results, and failed or unrun checks.}}
+{{Add a concrete example and relevant limitations here. Repeat for the components that need explanation and omit fields that do not apply.}}
 
 ## References
 
-- {{Source titles, URLs, relevant versions, and whether references were checked.}}
+- {{Relevant source title, URL, and version when needed.}}
