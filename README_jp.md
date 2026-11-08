@@ -42,12 +42,11 @@ dev-lab/
 ## AI 学習ガイド
 
 - ローカル LLM の推論環境: [英語版](learning/ai/local_llm_environment.md)（[日本語版](learning/ai/local_llm_environment_jp.md)）— GPU・VRAM・帯域、RTX・DGX の具体例、推論エンジン、オープンウェイトモデル、導入例を解説します。
-- [AIアシスタント・エージェントの全体構造と実践ガイド](learning/ai/agent_architecture_jp.md)（[英語](learning/ai/agent_architecture.md)）— 全体像から各コンポーネント、実践までを解説します。
+- [AIエージェントのアーキテクチャ](learning/ai/agent_architecture_jp.md)（[英語](learning/ai/agent_architecture.md)）— 全体像の図から、各コンポーネントの実行環境・入出力・カスタマイズ機能へ進みます。図は本文内のMermaidで記述しています。
 
 ## 学習ノートの Skill
 
 - [手順（英語）](.agents/skills/learning_note/SKILL.md)（[日本語](.agents/skills/learning_note/SKILL_jp.md)）
-- [Instructions と Skills の違い・使い方（英語）](learning/ai/agent_architecture.md#instructions-vs-skills)（[日本語](learning/ai/agent_architecture_jp.md#instructions-と-skills-の違い)）
 
 ## プロジェクト
 
