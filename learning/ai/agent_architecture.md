@@ -20,6 +20,14 @@ The user supplies a goal through a UI. An agent combines harness control, LLM ge
 
 UI and harness may share an application or run in separate services. Model inference may also be local or remote.
 
+The following **UML deployment/component view** separates execution environments, OS processes, software components, and files. Solid connections show exchanges; dashed arrows show use/read dependencies. `«process»` is a diagram-specific stereotype for a running OS process.
+
+![UML overview showing the user, UI, agent harness, instruction and skill files, command hook process, model inference, tools, and MCP server across execution environments.](assets/agent_architecture/uml/agent_deployment_en.png)
+
+[Open full-size PNG](assets/agent_architecture/uml/agent_deployment_en.png) · [Editable PlantUML source](assets/agent_architecture/uml/agent_deployment_en.puml)
+
+For example, the harness reads a selected Skill's instructions into the model context. The model returns a tool name and arguments; the harness checks permission, dispatches the tool, and supplies its result to a later model call. MCP is a protocol between client and server, not an instruction file supplied directly to the LLM. The command hook shown here illustrates one hook type; supported hook types vary by product.
+
 ## 2. Start with three roles
 
 **The LLM generates the next step. Tools perform operations. The harness manages the exchange. Together, they make up the agent system described here.**
@@ -476,6 +484,16 @@ For a C++ bug-fixing workflow: Instructions specify CMake/CTest conventions; a S
 
 The right-hand column lists different kinds of entry points, not equivalent extension APIs. SDK integration uses an agent runtime from another program; it does not automatically replace the runtime's internal loop. Use each product's documented event payloads, return formats and supported surfaces. [O2][A3][G3][C1][C2][C3]
 
+The UML view below focuses on **who invokes extension code and where that code runs**. These are selected integration mechanisms, not a complete feature comparison.
+
+![UML comparison of Claude Code Mods inside the agent process, Copilot CLI Extensions in a separate Node.js process, and separate Codex App Server and TypeScript SDK integration routes.](assets/agent_architecture/uml/agent_extensions_en.png)
+
+[Open full-size PNG](assets/agent_architecture/uml/agent_extensions_en.png) · [Editable PlantUML source](assets/agent_architecture/uml/agent_extensions_en.puml)
+
+- **Claude Code:** the host loads the Mod's JS/TS module and invokes its registered functions in its own process. The public API determines which events and UI elements can be changed. [A3]
+- **Copilot CLI:** the CLI launches an extension in a separate Node.js process. The extension SDK is a library inside that process, connecting the session to the extension's functions. CLI Extensions are experimental. [G3]
+- **Codex:** a custom app can communicate with App Server; separately, the TypeScript SDK wraps the Codex CLI for programmatic tasks. The diagram presents two entry points, not a required chain. Codex also supports Skills, Instructions, Hooks, and MCP. [O5][O6][C1]
+
 ## Writing Effective Prompts
 
 **A useful request states the goal, context, constraints, and completion criteria.**
@@ -842,6 +860,14 @@ Check the chain **input → model output → harness → tool → external servi
 - The existing Graphviz script remains available for legacy diagrams; it does not generate the new infographic.
 - The detailed execution sequence remains in a collapsible Mermaid block; its rendering was not checked in this change.
 
+The UML diagrams have editable `.puml` sources and rendered PNGs in `assets/agent_architecture/uml/`. To regenerate both language versions from the repository root, install Java, Graphviz (`dot` on `PATH`), and the Noto Sans CJK JP font, then use the [PlantUML JAR](https://plantuml.com/download). These images were rendered with PlantUML 1.2025.10 and visually checked for legibility and clipping.
+
+```bash
+java -jar /path/to/plantuml.jar -charset UTF-8 -tpng learning/ai/assets/agent_architecture/uml/*.puml
+```
+
+This writes a PNG beside each source file. Both diagrams use custom process stereotypes and simplified interactions to explain architecture; they do not specify every internal process or message order.
+
 ## References
 
 - [OpenAI: Key concepts](https://platform.openai.com/docs/concepts) — models and tokens.
@@ -855,6 +881,8 @@ Check the chain **input → model output → harness → tool → external servi
 - [O2] [OpenAI: Codex harness / App Server](https://openai.com/index/unlocking-the-codex-harness/)
 - [O3] [OpenAI: Advanced configuration](https://learn.chatgpt.com/docs/config-file/config-advanced)
 - [O4] [OpenAI: Using Codex Cloud](https://help.openai.com/en/articles/20001545-using-codex-cloud)
+- [O5] [OpenAI: Codex App Server](https://learn.chatgpt.com/docs/app-server)
+- [O6] [OpenAI: Codex TypeScript SDK](https://github.com/openai/codex/blob/main/sdk/typescript/README.md)
 - [A1] [Anthropic: How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works)
 - [A2] [Anthropic: Claude Code](https://claude.com/product/claude-code)
 - [A3] [Anthropic: Claude Code Mods](https://code.claude.com/docs/en/plugins/mods/overview)

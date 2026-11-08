@@ -1,0 +1,71 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Noto Sans CJK JP
+skinparam defaultFontSize 16
+skinparam titleFontSize 24
+skinparam dpi 120
+skinparam componentStyle uml2
+skinparam roundcorner 10
+skinparam nodesep 30
+skinparam ranksep 35
+skinparam ArrowColor #334155
+skinparam nodeBorderColor #64748B
+skinparam nodeBackgroundColor #F8FAFC
+skinparam componentBorderColor #2563EB
+skinparam componentBackgroundColor #EFF6FF
+skinparam artifactBackgroundColor #FEF3C7
+skinparam artifactBorderColor #B45309
+skinparam noteBackgroundColor #FFFBE8
+skinparam noteBorderColor #D6B655
+skinparam packageStyle rectangle
+hide empty members
+left to right direction
+title Extension architecture | Claude Code / Copilot CLI / Codex
+package "Claude Code Mods" as CLA #F5F3FF {
+  node "Claude Code process" as CP <<process>> {
+    component "Harness / UI event handling" as CH
+    component "Mod\nJS / TS module" as MOD #EDE9FE
+    CH <--> MOD : Events / function results\nSame-process calls
+  }
+}
+package "Copilot CLI Extensions" as COP #FFF1F2 {
+  node "Copilot CLI process" as CCP <<process>> {
+    component "Harness / extension dispatch" as CCH
+  }
+  node "Extension Node.js process" as EP <<process>> {
+    component "Extension SDK\nLibrary: connection and dispatch" as ES #FFE4E6
+    component "Your JavaScript\nTools / commands / session state" as EC #FFE4E6
+    ES <--> EC : Registered function call / result
+  }
+  CCH <--> ES : CLI starts extension\nIPC: request, event / result
+}
+package "Codex: application integration" as CODEX #EFF6FF {
+  package "Route A: interactive app / custom UI" as A {
+    node "Your app process" as APP <<process>> {
+      component "UI / application logic\nApp Server client" as CLIENT
+    }
+    node "Codex App Server process" as ASP <<process>> {
+      component "Codex Harness" as AH
+    }
+    CLIENT <--> AH : JSON-RPC\nTasks, approvals / events, results
+  }
+  package "Route B: automation / CI" as B {
+    node "Your automation process" as AUT <<process>> {
+      component "Your code" as AC
+      component "Codex TypeScript SDK\nLibrary" as CS
+      AC --> CS : call
+    }
+    node "Codex CLI process" as CCLI <<process>> {
+      component "Codex Harness" as BH
+    }
+    CS <--> BH : Start and communicate with CLI\nTasks / progress and results
+  }
+}
+legend bottom
+Representative execution relationships; CLI/SDK versions and modes can differ.
+Environment: whichever local or remote host runs each process.
+Modules and SDKs are code loaded in a process; process boxes identify execution boundaries.
+SDK/App Server integration and session extensions are different entry points.
+endlegend
+@enduml

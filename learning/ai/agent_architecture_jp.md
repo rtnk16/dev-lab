@@ -20,6 +20,14 @@ AIアシスタント、エージェント、Harness、LLM、拡張機能の関�
 
 UIとHarnessは同じアプリ内にも、別々のサービスにも配置できます。LLMの推論もローカル・リモートのどちらもあり得ます。
 
+次の**UML配置図・コンポーネント図**では、実行環境、OSプロセス、ソフトウェアの機能、ファイルを区別します。実線はやり取り、破線は利用・読込の依存関係です。`«process»`は、実行中のOSプロセスを示すためにこの図で定義したステレオタイプです。
+
+![ユーザー、UI、エージェントのHarness、Instructions・Skillsのファイル、コマンド型Hookのプロセス、モデル推論、Tools、MCPサーバーを実行環境ごとに示したUML全体図。](assets/agent_architecture/uml/agent_deployment_jp.png)
+
+[PNGを原寸で開く](assets/agent_architecture/uml/agent_deployment_jp.png) · [編集用PlantUMLソース](assets/agent_architecture/uml/agent_deployment_jp.puml)
+
+例えば、Harnessは選択したSkillの指示を読み、モデルのコンテキストに含めます。モデルがツール名と引数を返すと、Harnessが権限を確認してツールを実行し、結果を次のモデル呼び出しへ渡します。MCPはクライアントとサーバーの通信プロトコルで、LLMへ直接渡す指示ファイルではありません。図のコマンド型Hookは一例で、対応するHookの種類は製品によって異なります。
+
 ## 2. まずは三つの役割で考える
 
 **LLMが次の一手を生成し、ツールが操作を実行し、ハーネスが両者のやり取りを管理します。ここでは、この仕組み全体をエージェントと捉えます。**
@@ -478,6 +486,16 @@ C++のバグ修正なら、InstructionsにCMake／CTestの規約を書き、Skil
 
 右列は異なる種類の入口を並べており、同じ拡張APIを表すものではありません。SDKによる連携は別プログラムからエージェントのランタイムを利用することで、内部ループを自動的に置き換えるものではありません。各製品のイベント情報、戻り値の形式、対応する利用形態に合わせて実装します。[O2][A3][G3][C1][C2][C3]
 
+次のUML図は、**拡張コードを誰が呼び出し、どこで実行するか**を示します。代表的な連携方式を選んだ図で、全機能の比較表ではありません。
+
+![Claude Codeのプロセス内で動くMods、別のNode.jsプロセスで動くCopilot CLI Extensions、CodexのApp ServerとTypeScript SDKの別々の連携経路を示したUML図。](assets/agent_architecture/uml/agent_extensions_jp.png)
+
+[PNGを原寸で開く](assets/agent_architecture/uml/agent_extensions_jp.png) · [編集用PlantUMLソース](assets/agent_architecture/uml/agent_extensions_jp.puml)
+
+- **Claude Code：** 本体がModのJS／TSモジュールを読み込み、登録された関数を同じプロセス内で呼びます。変更できるイベントやUI要素は公開APIで決まります。[A3]
+- **Copilot CLI：** CLIが別のNode.jsプロセスでExtensionを起動します。拡張SDKはそのプロセス内のライブラリで、セッションと拡張の関数をつなぎます。CLI Extensionsは実験的機能です。[G3]
+- **Codex：** 自作アプリからApp Serverへ通信する方式と、TypeScript SDKを通じてCodex CLIをプログラムから操作する方式があります。図の2経路は、必ず直列につなぐものではありません。CodexにもSkills、Instructions、Hooks、MCPがあります。[O5][O6][C1]
+
 ## 効果的な Prompt の書き方
 
 **依頼には「目的・背景・制約・完了条件」を書きます。**
@@ -846,6 +864,14 @@ sequenceDiagram
 - 既存のGraphviz生成スクリプトは旧図版用として保持しています。冒頭の画像の生成には使いません。
 - 処理順序のMermaidは詳細表示内に残しています。今回レンダリング確認はしていません。
 
+UML図の編集用`.puml`と生成済みPNGは、`assets/agent_architecture/uml/`にあります。両言語版をリポジトリのルートから再生成するには、Java、Graphviz（`dot`を`PATH`に設定）、Noto Sans CJK JPフォントを用意し、[PlantUMLのJAR](https://plantuml.com/download)を使います。この図はPlantUML 1.2025.10で生成し、文字の読みやすさと欠けを目視確認しています。
+
+```bash
+java -jar /path/to/plantuml.jar -charset UTF-8 -tpng learning/ai/assets/agent_architecture/uml/*.puml
+```
+
+各ソースと同じ場所にPNGを出力します。2枚とも独自のプロセス・ステレオタイプと簡略化したやり取りで構造を説明しており、内部の全プロセスやメッセージの順序を定義する図ではありません。
+
 ## 参考資料
 
 - [OpenAI: Key concepts](https://platform.openai.com/docs/concepts) — モデルとトークン。
@@ -859,6 +885,8 @@ sequenceDiagram
 - [O2] [OpenAI: Codex harness / App Server](https://openai.com/index/unlocking-the-codex-harness/)
 - [O3] [OpenAI: Advanced configuration](https://learn.chatgpt.com/docs/config-file/config-advanced)
 - [O4] [OpenAI: Using Codex Cloud](https://help.openai.com/en/articles/20001545-using-codex-cloud)
+- [O5] [OpenAI: Codex App Server](https://learn.chatgpt.com/docs/app-server)
+- [O6] [OpenAI: Codex TypeScript SDK](https://github.com/openai/codex/blob/main/sdk/typescript/README.md)
 - [A1] [Anthropic: How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works)
 - [A2] [Anthropic: Claude Code](https://claude.com/product/claude-code)
 - [A3] [Anthropic: Claude Code Mods](https://code.claude.com/docs/en/plugins/mods/overview)

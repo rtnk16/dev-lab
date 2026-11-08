@@ -1,0 +1,73 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Noto Sans CJK JP
+skinparam defaultFontSize 16
+skinparam titleFontSize 24
+skinparam dpi 150
+skinparam componentStyle uml2
+skinparam roundcorner 10
+skinparam nodesep 50
+skinparam ranksep 70
+skinparam ArrowColor #334155
+skinparam nodeBorderColor #64748B
+skinparam nodeBackgroundColor #F8FAFC
+skinparam componentBorderColor #2563EB
+skinparam componentBackgroundColor #EFF6FF
+skinparam artifactBackgroundColor #FEF3C7
+skinparam artifactBorderColor #B45309
+skinparam noteBackgroundColor #FFFBE8
+skinparam noteBorderColor #D6B655
+skinparam packageStyle rectangle
+hide empty members
+top to bottom direction
+title AIエージェントの全体構造｜配置とコンポーネント
+actor "ユーザー" as U
+node "UIの環境\nPCなどの端末" as UIHOST <<device>> {
+  component "UIアプリ\nブラウザ・IDE・ターミナルUI" as UI
+}
+node "エージェントの実行環境\nPC・SSH先・コンテナ・クラウド" as AGHOST <<executionEnvironment>> {
+  artifact "Instructions・Skills・設定\nMarkdown・データ・補助スクリプト" as CFG
+  node "エージェントのプロセス" as AP <<process>> {
+    component "Harness\nループ・コンテキスト・権限・状態" as H
+    component "Tools\nファイル操作・Shell起動" as T
+    component "MCPクライアント" as MC
+  }
+  node "コマンド型Hookの実行" as HP <<process>> {
+    artifact "処理スクリプト\nPython・Shellなど" as HS
+  }
+  artifact "作業用ファイル" as FILES
+}
+node "推論の実行環境\nクラウド／ローカル" as MHOST <<executionEnvironment>> {
+  component "LLM\nモデルのパラメータ＋推論処理" as L #DCFCE7
+}
+node "MCPサーバーの環境\nローカル／リモート" as EXT <<executionEnvironment>> {
+  node "MCPサーバー" as MS <<process>>
+}
+node "外部サービスの環境\nクラウド／社内サーバー等" as APIHOST <<executionEnvironment>> {
+  component "外部サービスAPI" as API #CCFBF1
+}
+U <--> UI : 依頼／表示
+UI <--> H : 依頼・承認／進捗・回答
+H ..> CFG : 読込・選択
+H <--> L : 入力：コンテキスト・ツール定義\n出力：回答／ツール名＋引数
+H <--> T : 許可された操作／結果
+T ..> FILES : 読取・編集
+H <--> HP : イベント情報を渡して起動\n終了状態・対応する制御情報を返す
+H <--> MC : 機能取得・操作要求／結果
+MC <--> MS : MCP\nstdio / Streamable HTTP
+MS <--> API : API要求／データ・結果\n必要な場合
+T <--> API : 直接APIを呼ぶ構成もある
+note bottom of AGHOST
+代表的な配置例。固定のプロセス構成ではありません。
+UIとHarnessが同じ環境・プロセスの場合もあります。
+Shell・Gitは子プロセスとして動く場合があります。
+Skillのスクリプトは必要に応じてToolsで実行します。
+end note
+legend bottom
+<<process>>：実行中のOSプロセス（この図で定義するステレオタイプ）
+artifact：ファイル　component：ソフトウェアの機能
+実線：やり取りの経路　破線：利用・読込の依存
+MCPサーバー自身で処理し、外部APIを使わない場合もあります。
+endlegend
+@enduml

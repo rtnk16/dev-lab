@@ -1,0 +1,73 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Noto Sans CJK JP
+skinparam defaultFontSize 16
+skinparam titleFontSize 24
+skinparam dpi 150
+skinparam componentStyle uml2
+skinparam roundcorner 10
+skinparam nodesep 50
+skinparam ranksep 70
+skinparam ArrowColor #334155
+skinparam nodeBorderColor #64748B
+skinparam nodeBackgroundColor #F8FAFC
+skinparam componentBorderColor #2563EB
+skinparam componentBackgroundColor #EFF6FF
+skinparam artifactBackgroundColor #FEF3C7
+skinparam artifactBorderColor #B45309
+skinparam noteBackgroundColor #FFFBE8
+skinparam noteBorderColor #D6B655
+skinparam packageStyle rectangle
+hide empty members
+top to bottom direction
+title AI agent architecture | deployment and components
+actor "User" as U
+node "UI environment\nPC or other client device" as UIHOST <<device>> {
+  component "UI app\nBrowser / IDE / terminal UI" as UI
+}
+node "Agent execution environment\nPC / SSH host / container / cloud" as AGHOST <<executionEnvironment>> {
+  artifact "Instructions / Skills / settings\nMarkdown + data + optional scripts" as CFG
+  node "Agent process" as AP <<process>> {
+    component "Harness\nLoop / context / permissions / state" as H
+    component "Tools\nFile operations / Shell dispatch" as T
+    component "MCP client" as MC
+  }
+  node "Command hook execution" as HP <<process>> {
+    artifact "Handler script\nPython / Shell / etc." as HS
+  }
+  artifact "Workspace files" as FILES
+}
+node "Inference environment\nCloud or local" as MHOST <<executionEnvironment>> {
+  component "LLM\nModel parameters + inference engine" as L #DCFCE7
+}
+node "MCP server environment\nLocal or remote" as EXT <<executionEnvironment>> {
+  node "MCP server" as MS <<process>>
+}
+node "External service environment\nCloud / enterprise server, etc." as APIHOST <<executionEnvironment>> {
+  component "External service API" as API #CCFBF1
+}
+U <--> UI : Request / display
+UI <--> H : Request, approval / progress, answer
+H ..> CFG : read / select
+H <--> L : Input: context + tool definitions\nOutput: answer or tool name + arguments
+H <--> T : Permitted operation / result
+T ..> FILES : read / edit
+H <--> HP : Start with event payload\nReturn status / supported control data
+H <--> MC : Capability / operation request and result
+MC <--> MS : MCP\nstdio / Streamable HTTP
+MS <--> API : API request / data or result\nwhen needed
+T <--> API : Direct API calls are also possible
+note bottom of AGHOST
+This is a representative deployment, not a fixed process count.
+UI and harness may share a host/process.
+Shell/Git commands can run as child processes.
+A selected skill script is executed through tools.
+end note
+legend bottom
+<<process>>: a running OS process (diagram-specific stereotype)
+artifact: file / component: software responsibility
+Solid lines: interaction paths; dashed arrows: use/read dependencies
+MCP servers can perform operations without an external service.
+endlegend
+@enduml
