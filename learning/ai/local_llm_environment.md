@@ -1,27 +1,32 @@
 # Local LLM Inference Environment Guide
 
-[日本語](local_llm_environment_jp.md)
+[日本語](local_llm_environment_jp.md) · [Repository](../../README.md)
 
 - **Purpose:** choose hardware, software, and open-weight models for inference on a personal computer, workstation, or on-premises server.
 - **Documentation date:** 2026-11-05. **Source snapshot:** official materials checked on 2026-11-04 during the research for this note.
 - This is a selection guide with representative examples, not a complete product catalog or a report of GPU benchmarks performed in this repository.
-- Product specifications are vendor claims; memory calculations and configuration suggestions are estimates. Model evaluation scores are attributed to their publishers.
+- Product specifications are vendor claims; memory calculations and configuration suggestions are arithmetic estimates with their assumptions stated. Model evaluation scores are attributed to their publishers.
+- **Not run in this repository:** GPU installation, model downloads, inference examples, throughput/latency benchmarks, power measurements, and quality evaluations. Do not report published scores or expected command results as locally observed results.
 - Training and fine-tuning require a separate memory estimate; inference requirements do not cover gradients, optimizer states, or training activations.
 
-## 1. Selection Workflow
+## Contents
 
-1. Define the task: Japanese conversation, summarization, coding, image understanding, or document retrieval.
-2. Choose candidate models and an acceptable quantization level.
-3. Budget memory for weights, KV cache, and execution buffers at the required context length and concurrency.
-4. Evaluate memory bandwidth, compute throughput, and interconnects against the workload.
-5. Choose an engine and measure quality, latency, and throughput with representative inputs.
+- [1. System Overview and Terminology](#1-system-overview-and-terminology)
+- [2. Selection Workflow](#2-selection-workflow)
+- [3. Memory Sizing](#3-memory-sizing)
+- [4. Performance and Bandwidth](#4-performance-and-bandwidth)
+- [5. GPU Examples](#5-gpu-examples)
+- [6. DGX Systems](#6-dgx-systems)
+- [7. Host Hardware and Operating System](#7-host-hardware-and-operating-system)
+- [8. Inference Engines](#8-inference-engines)
+- [9. Quantization and File Formats](#9-quantization-and-file-formats)
+- [10. Open-Weight Models](#10-open-weight-models)
+- [11. Example Configurations](#11-example-configurations)
+- [12. Runnable Setup Examples](#12-runnable-setup-examples)
+- [13. Evaluation and Operations](#13-evaluation-and-operations)
+- [14. References](#14-references)
 
-- For a first personal setup, consider a 12–16GB GPU, an 8B–14B quantized model, and Ollama.
-- For 24B–32B models, consider 24–32GB of VRAM.
-- For a shared API, consider vLLM or SGLang and size the KV cache for concurrent requests.
-- These are starting recommendations, not minimum requirements or speed guarantees.
-
-## 2. System Overview and Terminology
+## 1. System Overview and Terminology
 
 ```mermaid
 flowchart TD
@@ -48,6 +53,19 @@ flowchart TD
 | Quantization | Lower-bit representation of weights or other tensors | Reduces memory; quality and speed depend on the implementation |
 | Dense | Most model weights participate in each token's computation | Total size is closely related to computation |
 | Mixture of Experts (MoE) | Only selected expert networks participate for each token | Active parameters can be small while total weight storage is large |
+
+## 2. Selection Workflow
+
+1. Define the task: Japanese conversation, summarization, coding, image understanding, or document retrieval.
+2. Choose candidate models and an acceptable quantization level.
+3. Budget memory for weights, KV cache, and execution buffers at the required context length and concurrency.
+4. Evaluate memory bandwidth, compute throughput, and interconnects against the workload.
+5. Choose an engine and measure quality, latency, and throughput with representative inputs.
+
+- For a first personal setup, consider a 12–16GB GPU, an 8B–14B quantized model, and Ollama.
+- For 24B–32B models, consider 24–32GB of VRAM.
+- For a shared API, consider vLLM or SGLang and size the KV cache for concurrent requests.
+- These are starting recommendations, not minimum requirements or speed guarantees.
 
 ## 3. Memory Sizing
 
@@ -520,16 +538,7 @@ curl http://127.0.0.1:8000/v1/chat/completions \
 - For an internal API, configure authentication, transport security, access controls, request limits, and log handling.
 - Local weights alone do not guarantee local data processing: inspect cloud features, web search, external tools, monitoring, and log destinations.
 
-## 14. Validation Status
-
-- **Source research:** official product pages, model cards, and engine documentation were checked during the 2026-11-04 research; the snapshot is not a claim that every linked page is immutable.
-- **Calculated examples:** weight-memory and illustrative KV/bandwidth calculations are arithmetic estimates with their assumptions stated.
-- **Document checks at creation:** whitespace, GFM parsing, local links, source-URL parity, heading/table structure, non-Mermaid code parity, and shell syntax checks passed. Repeat relevant checks when changing this note.
-- **Diagram:** Mermaid structure was reviewed; a dedicated Mermaid renderer was not run.
-- **Not run:** GPU installation, model downloads, inference examples, throughput/latency benchmarks, power measurements, and quality evaluations in this repository's authoring environment.
-- Published benchmark scores and expected command results must not be reported as locally observed results.
-
-## 15. References
+## 14. References
 
 - GPU tables link to NVIDIA, AMD, and official board/server vendors; DGX tables link to NVIDIA product and implementation guides.
 - Model tables link to author-owned model cards and first-party evaluations; engine sections link to official documentation.

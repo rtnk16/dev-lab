@@ -4,9 +4,13 @@
 
 ## Scope and Purpose
 
+### Purpose and Precedence
+
 - This repository is a personal workspace for learning, experimentation, and development.
 - These instructions apply throughout the repository.
 - Follow applicable host instructions and the user's task requirements; report unresolved conflicts rather than silently choosing a rule.
+
+### Claude Code Only
 
 - This repository is configured for Claude Code only. Claude Code loads this file automatically at the start of each session.
 - This English file is the canonical source of repository rules.
@@ -15,6 +19,8 @@
 
 ## Documentation and Translation
 
+### Writing and Diagrams
+
 - Write for the intended reader using plain language. Introduce unfamiliar terms with a short definition before using them in detailed explanations.
 - Organize conceptual and architecture documents as “overall diagram and explanation → individual components.” State the purpose briefly, then explain the whole system before its parts. Use concrete examples within the relevant explanations rather than adding mandatory chapters.
 - For component fields (responsibility, implementation form, execution environment, inputs, outputs, loading or invocation) and diagram review steps, follow [the learning-note skill](.claude/skills/learning-note/SKILL.md).
@@ -22,12 +28,16 @@
 - Architecture documents must not depend on PNGs, separate diagram source files, or generation scripts. Create image exports only when explicitly requested.
 - Prefer concise bullet points with one main idea per item; use short prose where it makes the explanation clearer.
 - Keep diagrams consistent between English and Japanese versions; translate explanatory labels while preserving identifiers and behavior.
+- Link each learning note and application README back to the root `README.md` (Japanese versions to `README_jp.md`).
+
+### Translation
 
 - Write documentation in English first, then add a Japanese translation beside it using the `_jp.md` suffix: `README.md` → `README_jp.md`.
 - Update both language versions in the same commit whenever their content changes.
 - Add relative links between the English and Japanese versions.
 - Preserve code, commands, paths, API names, identifiers, and machine-readable keys when translating. Translate explanatory prose and example text where appropriate without changing behavior.
 - Keep the meaning, structure, examples, and warnings consistent across languages. If a discrepancy is found, correct the Japanese translation against the English source.
+- In Japanese text, do not put spaces between Japanese characters and adjacent half-width letters, digits, or inline code (for example, `Claude Codeの設定`, `` `CLAUDE.md`に従う ``). Keep spaces inside code, commands, and identifiers as they are.
 - Use these rules for authored documentation, including instruction files. Do not rename required tool configuration files or translate generated or third-party files merely to create language pairs. `CLAUDE_jp.md` is a reading aid; Claude Code does not load it.
 
 ## Application README Requirements

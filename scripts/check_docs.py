@@ -4,7 +4,10 @@
 Checks:
   1. Every authored Markdown file has its language pair (X.md <-> X_jp.md).
   2. Each file of a pair links to the other.
-  3. Relative links and images point to files that exist.
+  3. Relative links and images point to files that exist, including
+     reference-style link definitions such as `[id]: path/to/file.md`.
+     Files under a templates/ directory are skipped for checks 2 and 3,
+     because their links are written for the destination of the note.
   4. With --base REF: a document changed since REF has its pair changed too.
 
 Usage:
@@ -32,6 +35,9 @@ ROOT = Path(__file__).resolve().parent.parent
 UNPAIRED = {"CLAUDE.local.md"}
 
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
+# Reference-style definition: up to three spaces, [label]:, then the target.
+# Footnote definitions ([^1]: text) are not links and are excluded.
+REF_DEF_RE = re.compile(r"^ {0,3}\[(?!\^)[^\]]+\]:\s*<?([^\s>]+)>?")
 SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*:")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 INLINE_CODE_RE = re.compile(r"`[^`]*`")
@@ -65,6 +71,10 @@ def links_in(path: str) -> list[str]:
             continue
         if in_fence:
             continue
+        ref = REF_DEF_RE.match(line)
+        if ref:
+            targets.append(ref.group(1))
+            continue
         targets.extend(LINK_RE.findall(INLINE_CODE_RE.sub("", line)))
     return targets
 
@@ -87,13 +97,16 @@ def resolve(source: str, target: str) -> str | None:
 def check_files(files: list[str]) -> list[str]:
     errors: list[str] = []
     for path in files:
+        # Templates contain links written for the note's final location, so
+        # their relative targets cannot be resolved from the template itself.
+        is_template = "/templates/" in f"/{path}"
         resolved_links = set()
         for target in links_in(path):
             resolved = resolve(path, target)
             if resolved is None:
                 continue
             resolved_links.add(resolved)
-            if not (ROOT / resolved).exists():
+            if not is_template and not (ROOT / resolved).exists():
                 errors.append(f"{path}: broken relative link -> {target}")
 
         pair = counterpart(path)
@@ -101,7 +114,7 @@ def check_files(files: list[str]) -> list[str]:
             continue
         if not (ROOT / pair).is_file():
             errors.append(f"{path}: missing language pair {pair}")
-        elif "/templates/" not in f"/{path}" and pair not in resolved_links:
+        elif not is_template and pair not in resolved_links:
             errors.append(f"{path}: no link to its language pair {pair}")
     return errors
 

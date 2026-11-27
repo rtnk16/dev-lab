@@ -2,7 +2,7 @@
 
 [日本語](README_jp.md) · [Repository](../../README.md)
 
-- A TypeScript Tetris game that runs in a web browser and an interactive terminal.
+- A TypeScript falling-block puzzle game that runs in a web browser and an interactive terminal.
 - Both clients use the same game engine for movement, rotation, gravity, hold, line clearing, and scoring.
 - The browser interface is in Japanese and supports keyboard and touch controls.
 
@@ -21,7 +21,10 @@ cd dev-lab/projects/blockwave
 npm ci
 ```
 
-If you already have a checkout, open the repository root, then run `cd projects/blockwave` and `npm ci`. If you downloaded the repository ZIP, extract it and open `dev-lab-main` first, then use the same commands. The browser's source download button downloads the whole repository, including this project.
+Other ways to get the code:
+
+- **Existing checkout:** from the repository root, run `cd projects/blockwave` and `npm ci`.
+- **ZIP download:** extract it, open `dev-lab-main`, then run the same commands. The source download button in the browser client downloads this ZIP of the whole repository.
 
 Start the browser client:
 
@@ -37,7 +40,7 @@ Start the terminal client:
 npm run play
 ```
 
-The game opens in the terminal. Press `Enter` to start and `Q` to exit. The terminal client compiles automatically before launch.
+The game opens in the terminal. Press `Enter` to start and `Q` to exit. The terminal client compiles automatically before launch. To show the controls without starting a game, run `npm run play -- --help`.
 
 ## Controls and Rules
 
@@ -101,7 +104,6 @@ node build/terminal/index.js --snapshot
 ## Troubleshooting
 
 - If installation reports an unsupported Node.js version, check `node --version`, install Node.js 22.12 or later, then rerun `npm ci`.
-- Run commands from `projects/blockwave`. Start the terminal client with `npm run play`. For controls without starting a game, use `npm run play -- --help`.
 
 ## Structure
 

@@ -24,7 +24,38 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 scripts/check_docs.py --base "origin/${{ github.base_ref }}"
 
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      blockwave: ${{ steps.filter.outputs.blockwave }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filter
+        name: Detect BLOCKWAVE changes
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT_NAME" = pull_request ]; then
+            base="$(git merge-base "origin/$BASE_REF" HEAD)"
+          elif git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+            base="$BEFORE"
+          else
+            echo "blockwave=true" >> "$GITHUB_OUTPUT"  # no usable base: run everything
+            exit 0
+          fi
+          if git diff --name-only "$base" HEAD | grep -qE '^(projects/blockwave/|\.github/workflows/checks\.yml$)'; then
+            echo "blockwave=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "blockwave=false" >> "$GITHUB_OUTPUT"
+          fi
+
   blockwave:
+    needs: changes
+    if: needs.changes.outputs.blockwave == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -1,6 +1,6 @@
 # {{タイトル}}
 
-[English]({{subject}}.md)
+[English]({{subject}}.md) · [リポジトリ](../../README_jp.md)
 
 {{目的、対象読者、範囲を短く述べる。}}
 

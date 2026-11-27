@@ -1,6 +1,6 @@
 # AI Agent Architecture
 
-[日本語](agent_architecture_jp.md)
+[日本語](agent_architecture_jp.md) · [Repository](../../README.md)
 
 Understand what runs where, what information moves between components, and where to customize Claude Code, Codex, and GitHub Copilot CLI. The diagrams are Mermaid blocks embedded in this Markdown file and can be viewed directly on GitHub.
 
@@ -46,10 +46,10 @@ For **“Fix this C++ bug and run the tests”**, the exchange is:
 
 ### 2.1 User and UI app
 
-| Component | What it is / where it runs | Input | Output |
-| --- | --- | --- | --- |
-| User | The person requesting and reviewing work | Answers, progress, diffs, approval requests | Goals, constraints, feedback, approvals |
-| UI app | Browser, IDE integration, desktop app, or terminal interface; CLI UI code runs on the CLI host | User actions and agent events | Requests to the agent; displayed answers, logs, and diffs |
+| Component | What it is | Execution environment | Started by | Input | Output |
+| --- | --- | --- | --- | --- | --- |
+| User | The person requesting and reviewing work | Outside the system | — | Answers, progress, diffs, approval requests | Goals, constraints, feedback, approvals |
+| UI app | Browser, IDE integration, desktop app, or terminal interface | The user's device; CLI UI code runs on the CLI host | The user | User actions and agent events | Requests to the agent; displayed answers, logs, and diffs |
 
 A **CLI** is a command-line program such as `codex`, `claude`, or `copilot`. The terminal application displays that program's interface. CLI and terminal are different programs, and a CLI's UI and harness may share a process. Over SSH, the terminal can run on your PC while CLI UI processing and the harness run on the remote host.
 
@@ -59,6 +59,7 @@ A **CLI** is a command-line program such as `codex`, `claude`, or `copilot`. The
 | --- | --- |
 | What it is | Software implemented in languages such as Rust, TypeScript, Python, or C++; running as one or more processes or services |
 | Execution environment | The machine, container, or cloud workspace running the agent |
+| Started by | The user, through a CLI command, IDE integration, desktop app, or cloud session |
 | Input | User requests, instructions, selected resources, model outputs, tool results, and extension events |
 | Output | Model API calls, permitted tool operations, extension invocations, progress, and final results |
 
@@ -74,6 +75,7 @@ For example, delegate a code review with a limited context and tool set, then re
 | --- | --- |
 | What it is | Learned model parameters used by an inference program or service |
 | Execution environment | Usually a provider's cloud service; supported configurations can use local inference |
+| Called by | The harness, at each step of the agent loop, through a model API or a local inference server |
 | Input | Context: prompts, relevant instructions, conversation, retrieved content, tool results, and tool definitions |
 | Output | Generated text or structured requests such as a tool name and arguments |
 
@@ -85,12 +87,14 @@ The context has a size limit. The harness may select, retrieve, or summarize inf
 
 A **tool** is a callable operation with a name, input format, and implementation. The harness dispatches an allowed request to that implementation.
 
-| Tool | Implementation / execution location | Input → output |
-| --- | --- | --- |
-| File operations | Code in the agent or an execution service, using that environment's filesystem | Path and edit data → file contents or a modification result |
-| Shell | A shell and command processes on the execution host | Command, arguments, working directory → stdout, stderr, exit code |
-| Git | The Git executable or a library; network access for remote operations | Repository and operation → diff, commit information, or result |
-| External API | API client in the agent, tool service, or MCP server | Operation and arguments → service data or result |
+| Tool | Implementation | Execution environment | Input → output |
+| --- | --- | --- | --- |
+| File operations | Code in the agent or an execution service | The agent's execution environment and its filesystem | Path and edit data → file contents or a modification result |
+| Shell | A shell and command processes | The execution host | Command, arguments, working directory → stdout, stderr, exit code |
+| Git | The Git executable or a library | The execution host; network access for remote operations | Repository and operation → diff, commit information, or result |
+| External API | API client in the agent, a tool service, or an MCP server | Wherever that client runs | Operation and arguments → service data or result |
+
+- Every tool in this table is invoked by the harness after its permission checks.
 
 The execution environment determines filesystem paths, installed dependencies, network access, and available credentials. The harness and OS/infrastructure enforce applicable permissions; natural-language instructions alone do not enforce them.
 
@@ -98,11 +102,11 @@ For example, a cloud workspace runs `ctest` against files in that workspace. It 
 
 ### 2.5 Prompt, Instructions, and Skills
 
-| Mechanism | What you write | Who reads it / when | Input → effect |
-| --- | --- | --- | --- |
-| Prompt | Text and attachments in the UI or API request | Harness receives the current request and builds model input | Task and constraints → guidance for this task |
-| Instructions | Markdown files or configured text | Host loads applicable rules according to product scope | Project or personal rules → relevant model guidance |
-| Skill | `SKILL.md`, optional references, templates, and helper scripts | Host and model participate in discovery/selection; required content is loaded through the host or file tools | Task and procedure → guided work; scripts produce results when executed through tools |
+| Mechanism | What you write | Where it is stored | Who reads it / when | Input → effect |
+| --- | --- | --- | --- | --- |
+| Prompt | Text and attachments in the UI or API request | Sent with the current request | Harness receives the current request and builds model input | Task and constraints → guidance for this task |
+| Instructions | Markdown files or configured text | Repository, user configuration, or product settings | Host loads applicable rules according to product scope | Project or personal rules → relevant model guidance |
+| Skill | `SKILL.md`, optional references, templates, and helper scripts | Skill directories on a filesystem the host can read | Host and model participate in discovery/selection; required content is loaded through the host or file tools | Task and procedure → guided work; scripts produce results when executed through tools |
 
 Instructions and Skills are stored on a filesystem or another resource accessible to the host. Their relevant text becomes context; the entire contents of every Skill need not be loaded at once. Selecting a Skill does not automatically execute all its scripts.
 
@@ -141,11 +145,11 @@ flowchart LR
     S <-->|"API requests / results<br/>when needed"| A["External service"]
 ```
 
-| Component | What it is / execution location | Input → output |
-| --- | --- | --- |
-| Connection configuration | Settings naming a server command or endpoint; read by the host | Configuration → server startup or connection |
-| MCP client | Protocol implementation on the agent/host side | Capability queries and operation requests → definitions, content, results, errors |
-| MCP server | Executable or service on the agent host or another host | Protocol requests → supported tools, resources, prompts, or operation results |
+| Component | What it is | Execution environment | Used by | Input → output |
+| --- | --- | --- | --- | --- |
+| Connection configuration | Settings naming a server command or endpoint | A configuration file or settings on the agent host | The host, when it starts or connects to servers | Configuration → server startup or connection |
+| MCP client | Protocol implementation | The agent/host side | The harness, when a model requests an MCP tool | Capability queries and operation requests → definitions, content, results, errors |
+| MCP server | Executable or service | The agent host or another host | The MCP client | Protocol requests → supported tools, resources, prompts, or operation results |
 
 The host discovers supported capabilities and makes relevant definitions available to the model. If the model requests a tool, the harness dispatches it through the client and returns the result to the model. For example, an internal issue-search server receives a query and returns matching issues.
 
