@@ -37,7 +37,7 @@ flowchart LR
 
 ## Completion Criteria
 
-- An English note and matching `_jp.md` translation exist and link to each other.
+- An English note and matching `_jp.md` translation exist, link to each other, and link back to the repository README in the same language.
 - Explanations have concrete examples and appropriate references.
 - No unused placeholders remain; verification claims match actual results.
 - Existing work is preserved and no unrelated changes are introduced.

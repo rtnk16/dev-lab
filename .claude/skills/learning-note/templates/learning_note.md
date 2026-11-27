@@ -1,6 +1,6 @@
 # {{Title}}
 
-[日本語]({{subject}}_jp.md)
+[日本語]({{subject}}_jp.md) · [Repository](../../README.md)
 
 {{Briefly state the purpose, audience, and scope.}}
 
