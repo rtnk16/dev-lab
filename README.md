@@ -1,47 +1,19 @@
 # dev-lab
 
-- Personal workspace for learning, experimentation, and development.
-
 [日本語](README_jp.md)
 
-## Directory Structure
+A personal workspace for learning, experimentation, and development.
 
-```text
-dev-lab/
-├── .claude/
-│   ├── settings.json
-│   └── skills/
-│       └── learning-note/
-│           ├── SKILL.md
-│           ├── SKILL_jp.md
-│           └── templates/
-├── .github/
-│   └── workflows/
-│       └── checks.yml
-├── learning/
-│   └── ai/
-│       ├── agent_architecture.md
-│       ├── agent_architecture_jp.md
-│       ├── local_llm_environment.md
-│       └── local_llm_environment_jp.md
-├── projects/
-│   └── blockwave/
-│       ├── README.md
-│       ├── README_jp.md
-│       ├── src/
-│       └── tests/
-├── scripts/
-│   └── check_docs.py
-├── .gitignore
-├── CLAUDE.md
-├── CLAUDE_jp.md
-├── README.md
-└── README_jp.md
-```
+## Contents
 
-- Create directories only when adding content; do not add placeholders for empty directories.
-- Organize study materials under `learning/` by topic.
-- Add `experiments/`, `projects/`, `notes/`, or `scripts/` when needed, and keep setup instructions and validation commands alongside each project or experiment.
+### AI Learning Guides
+
+- [Local LLM inference environments](learning/ai/local_llm_environment.md) ([日本語](learning/ai/local_llm_environment_jp.md)) — GPU/VRAM/bandwidth, RTX and DGX examples, inference engines, open-weight models, and setup examples.
+- [AI agent architecture](learning/ai/agent_architecture.md) ([日本語](learning/ai/agent_architecture_jp.md)) — an overview diagram followed by components, execution environments, I/O, and customization mechanisms; diagrams are embedded Mermaid.
+
+### Projects
+
+- [BLOCKWAVE](projects/blockwave/README.md) ([日本語](projects/blockwave/README_jp.md)) — a TypeScript falling-block puzzle game for the browser and terminal, with a shared engine, touch controls, and automated tests.
 
 ## Repository Rules
 
@@ -72,11 +44,17 @@ dev-lab/
 
 - GitHub Actions runs the same checks on pushes and pull requests (`.github/workflows/checks.yml`). The BLOCKWAVE tests and build run only when `projects/blockwave/` or the workflow file changes; otherwise that job is skipped.
 
-## AI Learning Guides
+## Directory Structure
 
-- Local LLM inference environments: [English](learning/ai/local_llm_environment.md) ([日本語](learning/ai/local_llm_environment_jp.md)) — GPU/VRAM/bandwidth, RTX and DGX examples, inference engines, open-weight models, and setup examples.
-- [AI agent architecture](learning/ai/agent_architecture.md) ([日本語](learning/ai/agent_architecture_jp.md)) — an overview diagram followed by components, execution environments, I/O, and customization mechanisms; diagrams are embedded Mermaid.
+```text
+dev-lab/
+├── .claude/              Claude Code settings and project skills
+├── .github/workflows/    GitHub Actions checks
+├── learning/<topic>/     Learning notes, one English/Japanese pair per subject
+├── projects/<name>/      Applications, each with its own README pair
+├── scripts/              Repository tools such as check_docs.py
+├── CLAUDE.md             Repository rules (Japanese: CLAUDE_jp.md)
+└── README.md             This file (Japanese: README_jp.md)
+```
 
-## Projects
-
-- [BLOCKWAVE](projects/blockwave/README.md) ([日本語](projects/blockwave/README_jp.md)) — a TypeScript falling-block puzzle game for the browser and terminal, with a shared engine, touch controls, and automated tests.
+- Naming and placement rules are in [Organization and Naming](CLAUDE.md#organization-and-naming).
