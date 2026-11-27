@@ -21,3 +21,7 @@ node_modules/
 # Operating system files
 .DS_Store
 Thumbs.db
+
+# Claude Code local-only configuration
+.claude/settings.local.json
+CLAUDE.local.md

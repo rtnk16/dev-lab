@@ -8,9 +8,16 @@
 
 ```text
 dev-lab/
+├── .claude/
+│   ├── settings.json
+│   └── skills/
+│       └── learning-note/
+│           ├── SKILL.md
+│           ├── SKILL_jp.md
+│           └── templates/
 ├── .github/
-│   ├── copilot-instructions.md
-│   └── copilot-instructions_jp.md
+│   └── workflows/
+│       └── checks.yml
 ├── learning/
 │   └── ai/
 │       ├── agent_architecture.md
@@ -23,9 +30,11 @@ dev-lab/
 │       ├── README_jp.md
 │       ├── src/
 │       └── tests/
+├── scripts/
+│   └── check_docs.py
 ├── .gitignore
-├── AGENTS.md
-├── AGENTS_jp.md
+├── CLAUDE.md
+├── CLAUDE_jp.md
 ├── README.md
 └── README_jp.md
 ```
@@ -36,8 +45,32 @@ dev-lab/
 
 ## リポジトリのルール
 
-- [共通ルール（英語）](AGENTS.md)（[日本語](AGENTS_jp.md)）
-- [Copilot 向けの指示（英語）](.github/copilot-instructions.md)（[日本語](.github/copilot-instructions_jp.md)）
+- [リポジトリのルール（英語）](CLAUDE.md)（[日本語](CLAUDE_jp.md)）— Claude Code は `CLAUDE.md` を自動で読み込みます。このリポジトリは Claude Code 専用です。
+- `codex` ブランチには、以前の Codex・Copilot 向けの構成（`AGENTS.md`、`.github/copilot-instructions.md`、`.agents/skills/`）を保存しています。
+
+## Claude Code の使い方
+
+- 共有設定は `.claude/settings.json` にあります。読み取り系の Git コマンドと検証コマンドをあらかじめ許可し、Claude がターンを終えるときに `Stop` hook でドキュメントの検証を実行します。
+- 個人用の上書き設定は `.claude/settings.local.json` か `CLAUDE.local.md` に書きます。どちらも Git の追跡対象外です。
+- プロジェクトのスキルはスラッシュコマンドで実行します。例: `/learning-note`
+
+## 検証
+
+- 必要環境: Python 3.9 以降と Git
+- ドキュメントの言語の組とリンクを確認します。
+
+  ```bash
+  python3 scripts/check_docs.py
+  ```
+
+  期待する結果: `check_docs: OK` と表示され、終了コードは 0 です。問題があれば一覧が表示され、終了コードは 1 になります。
+- PRの前には、変更したドキュメントの対になる言語版も変更されているか確認します。
+
+  ```bash
+  python3 scripts/check_docs.py --base origin/main
+  ```
+
+- GitHub Actions は、push と PR のたびに同じ検証と BLOCKWAVE のテスト・ビルドを実行します（`.github/workflows/checks.yml`）。
 
 ## AI 学習ガイド
 
@@ -46,7 +79,7 @@ dev-lab/
 
 ## 学習ノートの Skill
 
-- [手順（英語）](.agents/skills/learning_note/SKILL.md)（[日本語](.agents/skills/learning_note/SKILL_jp.md)）
+- [手順（英語）](.claude/skills/learning-note/SKILL.md)（[日本語](.claude/skills/learning-note/SKILL_jp.md)）
 
 ## プロジェクト
 

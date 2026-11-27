@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git fetch *)",
+      "Bash(python3 scripts/check_docs.py *)",
+      "Bash(npm --prefix projects/blockwave test)",
+      "Bash(npm --prefix projects/blockwave run typecheck)",
+      "Bash(npm --prefix projects/blockwave run build)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/check_docs.py\" --hook",
+            "timeout": 60,
+            "statusMessage": "Checking bilingual docs and links"
+          }
+        ]
+      }
+    ]
+  }
+}

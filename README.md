@@ -8,9 +8,16 @@
 
 ```text
 dev-lab/
+├── .claude/
+│   ├── settings.json
+│   └── skills/
+│       └── learning-note/
+│           ├── SKILL.md
+│           ├── SKILL_jp.md
+│           └── templates/
 ├── .github/
-│   ├── copilot-instructions.md
-│   └── copilot-instructions_jp.md
+│   └── workflows/
+│       └── checks.yml
 ├── learning/
 │   └── ai/
 │       ├── agent_architecture.md
@@ -23,9 +30,11 @@ dev-lab/
 │       ├── README_jp.md
 │       ├── src/
 │       └── tests/
+├── scripts/
+│   └── check_docs.py
 ├── .gitignore
-├── AGENTS.md
-├── AGENTS_jp.md
+├── CLAUDE.md
+├── CLAUDE_jp.md
 ├── README.md
 └── README_jp.md
 ```
@@ -36,8 +45,32 @@ dev-lab/
 
 ## Repository Rules
 
-- [Shared rules](AGENTS.md) ([日本語](AGENTS_jp.md))
-- [Copilot instructions](.github/copilot-instructions.md) ([日本語](.github/copilot-instructions_jp.md))
+- [Repository rules](CLAUDE.md) ([日本語](CLAUDE_jp.md)) — Claude Code loads `CLAUDE.md` automatically. This repository is configured for Claude Code only.
+- The `codex` branch keeps the earlier Codex and Copilot layout (`AGENTS.md`, `.github/copilot-instructions.md`, `.agents/skills/`).
+
+## Using Claude Code
+
+- Shared settings live in `.claude/settings.json`: read-only Git and validation commands are pre-allowed, and a `Stop` hook runs the documentation check when Claude finishes a turn.
+- Put personal overrides in `.claude/settings.local.json` or `CLAUDE.local.md`; both are ignored by Git.
+- Run project skills with a slash command, for example `/learning-note`.
+
+## Validation
+
+- Prerequisite: Python 3.9 or later and Git.
+- Check documentation pairs and links:
+
+  ```bash
+  python3 scripts/check_docs.py
+  ```
+
+  Expected result: `check_docs: OK` and exit code 0. Problems are listed with exit code 1.
+- Before a pull request, also check that each changed document's language pair changed:
+
+  ```bash
+  python3 scripts/check_docs.py --base origin/main
+  ```
+
+- GitHub Actions runs the same checks and the BLOCKWAVE tests and build on pushes and pull requests (`.github/workflows/checks.yml`).
 
 ## AI Learning Guides
 
@@ -46,7 +79,7 @@ dev-lab/
 
 ## Learning Note Skill
 
-- [Procedure](.agents/skills/learning_note/SKILL.md) ([日本語](.agents/skills/learning_note/SKILL_jp.md))
+- [Procedure](.claude/skills/learning-note/SKILL.md) ([日本語](.claude/skills/learning-note/SKILL_jp.md))
 
 ## Projects
 
