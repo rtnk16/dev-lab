@@ -16,8 +16,6 @@ dev-lab/
 │           ├── SKILL_jp.md
 │           └── templates/
 ├── .github/
-│   ├── copilot-instructions.md
-│   ├── copilot-instructions_jp.md
 │   └── workflows/
 │       └── checks.yml
 ├── learning/
@@ -35,9 +33,8 @@ dev-lab/
 ├── scripts/
 │   └── check_docs.py
 ├── .gitignore
-├── AGENTS.md
-├── AGENTS_jp.md
 ├── CLAUDE.md
+├── CLAUDE_jp.md
 ├── README.md
 └── README_jp.md
 ```
@@ -48,10 +45,8 @@ dev-lab/
 
 ## リポジトリのルール
 
-- [共通ルール（英語）](AGENTS.md)（[日本語](AGENTS_jp.md)）
-- [Copilot 向けの指示（英語）](.github/copilot-instructions.md)（[日本語](.github/copilot-instructions_jp.md)）
-- `CLAUDE.md` が `AGENTS.md` を取り込むため、Claude Code は共通ルールを自動で読み込みます。
-- `codex` ブランチには、以前の Codex 向けの構成（`.agents/skills/`）を保存しています。
+- [リポジトリのルール（英語）](CLAUDE.md)（[日本語](CLAUDE_jp.md)）— Claude Code は `CLAUDE.md` を自動で読み込みます。このリポジトリは Claude Code 専用です。
+- `codex` ブランチには、以前の Codex・Copilot 向けの構成（`AGENTS.md`、`.github/copilot-instructions.md`、`.agents/skills/`）を保存しています。
 
 ## Claude Code の使い方
 

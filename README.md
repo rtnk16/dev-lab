@@ -16,8 +16,6 @@ dev-lab/
 │           ├── SKILL_jp.md
 │           └── templates/
 ├── .github/
-│   ├── copilot-instructions.md
-│   ├── copilot-instructions_jp.md
 │   └── workflows/
 │       └── checks.yml
 ├── learning/
@@ -35,9 +33,8 @@ dev-lab/
 ├── scripts/
 │   └── check_docs.py
 ├── .gitignore
-├── AGENTS.md
-├── AGENTS_jp.md
 ├── CLAUDE.md
+├── CLAUDE_jp.md
 ├── README.md
 └── README_jp.md
 ```
@@ -48,10 +45,8 @@ dev-lab/
 
 ## Repository Rules
 
-- [Shared rules](AGENTS.md) ([日本語](AGENTS_jp.md))
-- [Copilot instructions](.github/copilot-instructions.md) ([日本語](.github/copilot-instructions_jp.md))
-- `CLAUDE.md` imports `AGENTS.md`, so Claude Code loads the shared rules automatically.
-- The `codex` branch keeps the earlier Codex-oriented layout (`.agents/skills/`).
+- [Repository rules](CLAUDE.md) ([日本語](CLAUDE_jp.md)) — Claude Code loads `CLAUDE.md` automatically. This repository is configured for Claude Code only.
+- The `codex` branch keeps the earlier Codex and Copilot layout (`AGENTS.md`, `.github/copilot-instructions.md`, `.agents/skills/`).
 
 ## Using Claude Code
 

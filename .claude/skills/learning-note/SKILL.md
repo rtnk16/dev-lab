@@ -10,10 +10,10 @@ description: Create or update bilingual learning notes in dev-lab with sourced e
 ## When to Use
 
 - Use this skill when the user asks to create or update a learning note about a specific topic.
-- Follow the repository's `AGENTS.md`.
+- Follow the repository's `CLAUDE.md`.
 - This procedure does not grant permission to commit, push, publish, install dependencies, or perform consequential external actions.
 
-- Keep the note self-contained in Markdown: use inline Mermaid for GitHub diagrams and ASCII for directory trees. Follow `AGENTS.md` for other renderers and explicitly requested exports.
+- Keep the note self-contained in Markdown: use inline Mermaid for GitHub diagrams and ASCII for directory trees. Follow `CLAUDE.md` for other renderers and explicitly requested exports.
 - Present the overall diagram and explanation before individual components. Keep component responsibilities, implementation forms, execution environments, inputs/outputs, and loading or invocation relationships explicit where relevant. For customization mechanisms, identify who loads or invokes them and what happens next. Distinguish files, libraries, software roles, and running processes. Keep structure and meaning aligned across languages.
 - Use focused diagrams to explain relationships, information flow, execution locations, and boundaries; avoid decorative repetition. Give diagrams descriptive labels and explain how to read them. Check syntax, arrow direction, and consistency with the prose, and check rendering when possible.
 

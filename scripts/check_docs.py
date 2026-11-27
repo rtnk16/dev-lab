@@ -5,8 +5,7 @@ Checks:
   1. Every authored Markdown file has its language pair (X.md <-> X_jp.md).
   2. Each file of a pair links to the other.
   3. Relative links and images point to files that exist.
-  4. With --base REF: a document changed since REF has its pair changed too,
-     and a change to AGENTS.md is mirrored in the Copilot instructions (warning).
+  4. With --base REF: a document changed since REF has its pair changed too.
 
 Usage:
   python3 scripts/check_docs.py              # full check
@@ -30,7 +29,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # Files that are required tool configuration and intentionally have no pair.
-UNPAIRED = {"CLAUDE.md", "CLAUDE.local.md"}
+UNPAIRED = {"CLAUDE.local.md"}
 
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
 SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*:")
@@ -107,7 +106,7 @@ def check_files(files: list[str]) -> list[str]:
     return errors
 
 
-def check_changed_pairs(base: str) -> tuple[list[str], list[str]]:
+def check_changed_pairs(base: str) -> list[str]:
     merge_base = git("merge-base", base, "HEAD").strip()
     changed = set(git("diff", "--name-only", merge_base).split())
     changed |= set(git("ls-files", "--others", "--exclude-standard").split())
@@ -117,14 +116,7 @@ def check_changed_pairs(base: str) -> tuple[list[str], list[str]]:
         pair = counterpart(path)
         if pair and pair not in changed:
             errors.append(f"{path}: changed since {base}, but {pair} was not")
-
-    warnings: list[str] = []
-    if "AGENTS.md" in changed and ".github/copilot-instructions.md" not in changed:
-        warnings.append(
-            "AGENTS.md changed but .github/copilot-instructions.md did not; "
-            "confirm the Copilot copy of the essential rules is still aligned"
-        )
-    return errors, warnings
+    return errors
 
 
 def main() -> int:
@@ -141,13 +133,8 @@ def main() -> int:
             pass
 
     errors = check_files(markdown_files())
-    warnings: list[str] = []
     if args.base:
-        pair_errors, warnings = check_changed_pairs(args.base)
-        errors += pair_errors
-
-    for warning in warnings:
-        print(f"warning: {warning}", file=sys.stderr)
+        errors += check_changed_pairs(args.base)
 
     if not errors:
         if not args.hook:
