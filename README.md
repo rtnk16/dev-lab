@@ -11,6 +11,10 @@ A personal workspace for learning, experimentation, and development.
 - [Local LLM inference environments](learning/ai/local_llm_environment.md) ([日本語](learning/ai/local_llm_environment_jp.md)) — GPU/VRAM/bandwidth, RTX and DGX examples, inference engines, open-weight models, and setup examples.
 - [AI agent architecture](learning/ai/agent_architecture.md) ([日本語](learning/ai/agent_architecture_jp.md)) — an overview diagram followed by components, execution environments, I/O, and customization mechanisms; diagrams are embedded Mermaid.
 
+### Embedded Learning Guides
+
+- [Jetson AGX Orin peripherals](learning/embedded/jetson_agx_orin_peripherals.md) ([日本語](learning/embedded/jetson_agx_orin_peripherals_jp.md)) — module interfaces, Developer Kit connectors, and the Linux driver and user-space access for GPIO, UART, I2C, SPI, CAN, PWM, audio, USB, PCIe, Ethernet, cameras, display, and storage.
+
 ### Projects
 
 - [BLOCKWAVE](projects/blockwave/README.md) ([日本語](projects/blockwave/README_jp.md)) — a TypeScript falling-block puzzle game for the browser and terminal, with a shared engine, touch controls, and automated tests.
