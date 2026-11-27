@@ -21,7 +21,10 @@ cd dev-lab/projects/blockwave
 npm ci
 ```
 
-If you already have a checkout, open the repository root, then run `cd projects/blockwave` and `npm ci`. If you downloaded the repository ZIP, extract it and open `dev-lab-main` first, then use the same commands. The browser's source download button downloads the whole repository, including this project.
+Other ways to get the code:
+
+- **Existing checkout:** from the repository root, run `cd projects/blockwave` and `npm ci`.
+- **ZIP download:** extract it, open `dev-lab-main`, then run the same commands. The source download button in the browser client downloads this ZIP of the whole repository.
 
 Start the browser client:
 
