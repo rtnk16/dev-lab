@@ -1,5 +1,5 @@
 ---
-name: learning_note
+name: learning-note
 description: Create or update bilingual learning notes in dev-lab with sourced explanations, practical examples, and honest validation results. Use when asked to document a learning topic, not for every documentation edit.
 ---
 
@@ -14,7 +14,8 @@ description: Create or update bilingual learning notes in dev-lab with sourced e
 - This procedure does not grant permission to commit, push, publish, install dependencies, or perform consequential external actions.
 
 - Keep the note self-contained in Markdown: use inline Mermaid for GitHub diagrams and ASCII for directory trees. Follow `AGENTS.md` for other renderers and explicitly requested exports.
-- Present the overall diagram and explanation before individual components. Keep component responsibilities, implementation forms, execution environments, inputs/outputs, and loading or invocation relationships explicit where relevant. Keep structure and meaning aligned across languages.
+- Present the overall diagram and explanation before individual components. Keep component responsibilities, implementation forms, execution environments, inputs/outputs, and loading or invocation relationships explicit where relevant. For customization mechanisms, identify who loads or invokes them and what happens next. Distinguish files, libraries, software roles, and running processes. Keep structure and meaning aligned across languages.
+- Use focused diagrams to explain relationships, information flow, execution locations, and boundaries; avoid decorative repetition. Give diagrams descriptive labels and explain how to read them. Check syntax, arrow direction, and consistency with the prose, and check rendering when possible.
 
 ```mermaid
 flowchart LR
@@ -29,7 +30,7 @@ flowchart LR
 4. **Draft in English.** Start from [the template](templates/learning_note.md), adapting it to the topic and removing unused sections and placeholders. Briefly state the purpose, then write the overall diagram and explanation followed by individual components. Place concrete examples and relevant limitations with the component they explain. Do not add fact-check, further-learning, or validation chapters unless requested or needed for the subject itself.
 5. **Validate examples.** For runnable examples, state prerequisites, commands, and expected results. Run safe, relevant examples when the environment supports them. Avoid destructive operations and unnecessary dependencies. Label observed results separately from expected results; report failures and unrun checks honestly. For conceptual topics, check that examples support the explanation instead of adding artificial execution steps.
 6. **Translate.** Create the Japanese version using [the Japanese template](templates/learning_note_jp.md). Preserve meaning, section order, examples, warnings, code, commands, paths, and identifiers. Translate explanatory text. Add reciprocal relative links.
-7. **Review.** Check factual support, translation consistency, relative-link targets, code fences, and whitespace. Use `git diff --check` for tracked changes and also inspect new files, which that command alone does not cover. Do not leave template placeholders in finished notes.
+7. **Review.** Check factual support, translation consistency, relative-link targets, code fences, and whitespace. Run `python3 scripts/check_docs.py` for language pairs and relative links. Use `git diff --check` for tracked changes and also inspect new files, which that command alone does not cover. Do not leave template placeholders in finished notes.
 8. **Report.** List created or updated files, key sources, checks performed, and limitations in the completion message. Do not add a chapter to the note just to record authoring checks. Commit or push only within the user's authorized scope; use English commit messages and PR titles/descriptions.
 
 ## Completion Criteria
@@ -42,6 +43,6 @@ flowchart LR
 ## Example Request
 
 ```text
-Use learning_note to explain Linux processes and threads for a beginner.
+Use the learning-note skill (`/learning-note`) to explain Linux processes and threads for a beginner.
 Include a safe example that can be run locally and references to official documentation.
 ```

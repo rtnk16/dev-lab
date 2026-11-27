@@ -9,6 +9,7 @@
 - Follow applicable host instructions and the user's task requirements; report unresolved conflicts rather than silently choosing a rule.
 
 - This English file is the canonical source of shared repository rules.
+- Claude Code loads it through `CLAUDE.md`, which imports this file. Keep tool-specific additions out of `CLAUDE.md` unless they apply only to Claude Code.
 - Keep the essential rules in `.github/copilot-instructions.md` aligned with it.
 - Japanese translations are reading aids, not separate sources of instructions.
 
@@ -16,10 +17,9 @@
 
 - Write for the intended reader using plain language. Introduce unfamiliar terms with a short definition before using them in detailed explanations.
 - Organize conceptual and architecture documents as “overall diagram and explanation → individual components.” State the purpose briefly, then explain the whole system before its parts. Use concrete examples within the relevant explanations rather than adding mandatory chapters.
-- For each relevant component, explain its responsibility, implementation form, execution environment, inputs, and outputs. For customization mechanisms, identify who loads or invokes them and what happens next. Distinguish files, libraries, software roles, and running processes.
+- For component fields (responsibility, implementation form, execution environment, inputs, outputs, loading or invocation) and diagram review steps, follow [the learning-note skill](.claude/skills/learning-note/SKILL.md).
 - Keep diagrams inside the Markdown document. Prefer fenced `mermaid` blocks for GitHub and ASCII trees for directories. Use fenced PlantUML only when the target viewer is known to support it; GitHub does not natively render PlantUML blocks.
 - Architecture documents must not depend on PNGs, separate diagram source files, or generation scripts. Create image exports only when explicitly requested.
-- Use focused diagrams to explain relationships, information flow, execution locations, and boundaries. Avoid decorative repetition. Give diagrams descriptive labels, explain how to read them, and check syntax, arrow direction, and consistency with the prose. Check rendering when possible and report unrun checks in the completion message.
 - Prefer concise bullet points with one main idea per item; use short prose where it makes the explanation clearer.
 - Keep diagrams consistent between English and Japanese versions; translate explanatory labels while preserving identifiers and behavior.
 
@@ -28,7 +28,7 @@
 - Add relative links between the English and Japanese versions.
 - Preserve code, commands, paths, API names, identifiers, and machine-readable keys when translating. Translate explanatory prose and example text where appropriate without changing behavior.
 - Keep the meaning, structure, examples, and warnings consistent across languages. If a discrepancy is found, correct the Japanese translation against the English source.
-- Use these rules for authored documentation, including instruction files. Do not rename required tool configuration files or translate generated or third-party files merely to create language pairs.
+- Use these rules for authored documentation, including instruction files. Do not rename required tool configuration files or translate generated or third-party files merely to create language pairs. `CLAUDE.md` is a one-line import and has no Japanese pair.
 
 ## Application README Requirements
 
@@ -41,8 +41,16 @@
 
 - Create directories only when adding content. Do not create empty directories or `.gitkeep` placeholders.
 - Put study materials under `learning/` by topic. Add `experiments/`, `projects/`, `notes/`, or `scripts/` only when needed.
-- Use lowercase `snake_case` for new file and directory names. Preserve conventional names such as `README.md`, `AGENTS.md`, `SKILL.md`, required configuration filenames, and existing names such as `AI_GUIDE.md`.
+- Use lowercase `snake_case` for new file and directory names. Preserve conventional names such as `README.md`, `AGENTS.md`, `CLAUDE.md`, `SKILL.md`, required configuration filenames, and existing names such as `AI_GUIDE.md`.
+- Name Claude Code skill directories in lowercase `kebab-case` (for example, `.claude/skills/learning-note/`), because skill names allow only lowercase letters, digits, and hyphens. Files inside a skill still use `snake_case`.
 - Keep setup instructions and validation commands near the relevant project or experiment.
+
+## Claude Code Configuration
+
+- `CLAUDE.md`: imports this file so Claude Code loads the shared rules.
+- `.claude/skills/<name>/SKILL.md`: project skills that Claude Code discovers and that users can run as `/<name>`. Keep a `SKILL_jp.md` translation beside each `SKILL.md`.
+- `.claude/settings.json`: shared permissions and hooks. Allow only read-only or validation commands; do not add rules that permit pushing, deleting, or publishing.
+- `.claude/settings.local.json` and `CLAUDE.local.md`: personal, local-only overrides. They are ignored by Git and must not be committed.
 
 ## Learning Materials and Examples
 
@@ -55,7 +63,9 @@
 
 - Inspect existing files and instructions before editing. Keep changes focused and preserve unrelated user work.
 - Add dependencies only when needed. Use existing package managers and lockfiles; avoid unnecessary dependency updates.
-- Run checks appropriate to the change. For documentation, check formatting, relative links, and consistency between language versions. For code, use relevant existing tests and build commands.
+- Run checks appropriate to the change. For documentation, run `python3 scripts/check_docs.py` (language pairs, reciprocal links, and relative link targets), then review formatting and translation consistency yourself. For code, use relevant existing tests and build commands.
+- Before opening or updating a pull request, run `python3 scripts/check_docs.py --base origin/main` to confirm that each changed document's language pair changed too.
+- The Claude Code `Stop` hook and the GitHub Actions `checks` workflow run the same script; fix reported failures instead of bypassing them.
 - Report passed, failed, skipped, and unrun checks accurately. Do not claim unexecuted commands succeeded.
 - Never commit credentials, personal information, local-only configuration, dependency caches, or generated build outputs. Keep safe configuration examples free of secrets and update `.gitignore` when necessary.
 
@@ -66,5 +76,8 @@
 - Use English commit messages and group each commit around one purpose.
 - Write pull request titles and descriptions in English.
 - After each completed change, validate it, commit it, and push to the working branch unless the user explicitly requests otherwise. Report the commit SHA and push result.
-- After validation, commit, and a successful push, check for an open pull request for the working branch. If none exists and there are changes to propose, create a draft pull request targeting the intended integration branch (the repository default unless specified otherwise). If one exists, update its title and description to reflect the final changes and validation, preserving relevant existing context and review state. Avoid duplicate pull requests. Report the PR URL. Do not merge, enable auto-merge, publish releases, or deploy unless explicitly requested. If authentication or permissions prevent PR creation or updates, report the blocker without claiming success.
+- After validation, commit, and a successful push, check for an open pull request for the working branch. If none exists and there are changes to propose, create a draft pull request targeting the intended integration branch (the repository default unless specified otherwise). If one exists, update its title and description to reflect the final changes and validation, preserving relevant existing context and review state. Avoid duplicate pull requests. Report the PR URL.
+- If the host forbids creating pull requests without an explicit request (as Claude Code cloud sessions do), do not create one; report that no PR was created and offer to create it. A user's request in the conversation counts as explicit.
+- Do not merge, enable auto-merge, publish releases, or deploy unless explicitly requested. If authentication or permissions prevent PR creation or updates, report the blocker without claiming success.
 - Push directly to `main` or force-push only when explicitly instructed. Do not reset or overwrite unrelated work.
+- The `codex` branch preserves the repository as configured for Codex before the move to Claude Code. Do not update it unless explicitly asked.
