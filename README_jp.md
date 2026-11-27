@@ -14,6 +14,11 @@
 ### 組み込み学習ガイド
 
 - [Jetson AGX Orinのペリフェラル](learning/embedded/jetson_agx_orin_peripherals_jp.md)（[English](learning/embedded/jetson_agx_orin_peripherals.md)）— モジュールのインターフェース、Developer Kitのコネクタ、GPIO・UART・I2C・SPI・CAN・PWM・オーディオ・USB・PCIe・Ethernet・カメラ・ディスプレイ・ストレージのLinuxドライバとユーザー空間からの使い方をまとめます。
+- [I2C](learning/embedded/i2c_jp.md)（[English](learning/embedded/i2c.md)）— START/STOP、アドレス指定、ACK、プルアップ、速度モード、`i2c-dev`の使い方を説明します。
+- [SPI](learning/embedded/spi_jp.md)（[English](learning/embedded/spi.md)）— シフトレジスタによる転送、4つのクロックモード、チップセレクト、`spidev`の使い方を説明します。
+- [UART](learning/embedded/uart_jp.md)（[English](learning/embedded/uart.md)）— フレーム形式、ボーレートの許容誤差、フロー制御、RS-232/RS-485、`termios`の使い方を説明します。
+- [USB](learning/embedded/usb_jp.md)（[English](learning/embedded/usb.md)）— USB 2.0/3.x/Type-Cのピン、CCによる検出、列挙、ディスクリプタ、転送の種類、Jetsonのホスト／デバイスモードを説明します。
+- [MIPI CSI-2](learning/embedded/mipi_csi_jp.md)（[English](learning/embedded/mipi_csi.md)）— カメラコネクタのピン、D-PHY/C-PHY、CSI-2のパケット、帯域、Jetsonでのカメラの立ち上げを説明します。
 
 ### プロジェクト
 

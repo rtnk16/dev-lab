@@ -77,6 +77,8 @@ Module capabilities from the Jetson AGX Orin Series Technical Brief v1.2 and Dat
 
 Earlier brief revisions (v1.0 and v1.1) listed four 10GbE (XFI) interfaces and UFS. Revision v1.2 reduced MGBE to one interface and removed UFS support. Old forum posts or articles can still show the earlier values.
 
+Detailed notes on individual interfaces: [I2C](i2c.md), [SPI](spi.md), [UART](uart.md), [USB](usb.md), and [MIPI CSI-2](mipi_csi.md). Each explains the mechanism, the pins and their roles, and how to use the interface on Linux.
+
 ## Developer Kit connectors
 
 The reference carrier board exposes most interfaces as follows. This list is a summary for orientation; the exact reference designators, pin tables, and port speeds are in the *Jetson AGX Orin Developer Kit User Guide* (Hardware Layout) and the *Carrier Board Specification*.

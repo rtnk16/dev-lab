@@ -77,6 +77,8 @@ flowchart LR
 
 Technical Briefの以前の版（v1.0とv1.1）では、10GbE（XFI）インターフェースを4つとし、UFSも記載していました。v1.2でMGBEは1つに減り、UFSのサポートは削除されました。古いフォーラムの投稿や記事には、以前の値が残っていることがあります。
 
+個々のインターフェースの詳しいノート：[I2C](i2c_jp.md)、[SPI](spi_jp.md)、[UART](uart_jp.md)、[USB](usb_jp.md)、[MIPI CSI-2](mipi_csi_jp.md)。それぞれ仕組み、ピンと役割、Linuxでの使い方を説明しています。
+
 ## Developer Kitのコネクタ
 
 リファレンスキャリアボードでは、主なインターフェースが次のように出ています。この一覧は概要をつかむためのものです。正確な部品番号、ピン表、ポートの速度は*Jetson AGX Orin Developer Kit User Guide*（Hardware Layout）と*Carrier Board Specification*を参照してください。
