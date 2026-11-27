@@ -52,7 +52,7 @@ dev-lab/
 
 - Shared settings live in `.claude/settings.json`: read-only Git and validation commands are pre-allowed, and a `Stop` hook runs the documentation check when Claude finishes a turn.
 - Put personal overrides in `.claude/settings.local.json` or `CLAUDE.local.md`; both are ignored by Git.
-- Run project skills with a slash command, for example `/learning-note`.
+- Run project skills with a slash command. For example, `/learning-note` creates or updates bilingual learning notes; see [its procedure](.claude/skills/learning-note/SKILL.md) ([日本語](.claude/skills/learning-note/SKILL_jp.md)).
 
 ## Validation
 
@@ -70,17 +70,13 @@ dev-lab/
   python3 scripts/check_docs.py --base origin/main
   ```
 
-- GitHub Actions runs the same checks and the BLOCKWAVE tests and build on pushes and pull requests (`.github/workflows/checks.yml`).
+- GitHub Actions runs the same checks on pushes and pull requests (`.github/workflows/checks.yml`). The BLOCKWAVE tests and build run only when `projects/blockwave/` or the workflow file changes; otherwise that job is skipped.
 
 ## AI Learning Guides
 
 - Local LLM inference environments: [English](learning/ai/local_llm_environment.md) ([日本語](learning/ai/local_llm_environment_jp.md)) — GPU/VRAM/bandwidth, RTX and DGX examples, inference engines, open-weight models, and setup examples.
 - [AI agent architecture](learning/ai/agent_architecture.md) ([日本語](learning/ai/agent_architecture_jp.md)) — an overview diagram followed by components, execution environments, I/O, and customization mechanisms; diagrams are embedded Mermaid.
 
-## Learning Note Skill
-
-- [Procedure](.claude/skills/learning-note/SKILL.md) ([日本語](.claude/skills/learning-note/SKILL_jp.md))
-
 ## Projects
 
-- [BLOCKWAVE](projects/blockwave/README.md) ([日本語](projects/blockwave/README_jp.md)) — a TypeScript Tetris game for the browser and terminal, with a shared engine, touch controls, and automated tests.
+- [BLOCKWAVE](projects/blockwave/README.md) ([日本語](projects/blockwave/README_jp.md)) — a TypeScript falling-block puzzle game for the browser and terminal, with a shared engine, touch controls, and automated tests.

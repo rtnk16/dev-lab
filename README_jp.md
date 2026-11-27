@@ -52,7 +52,7 @@ dev-lab/
 
 - 共有設定は `.claude/settings.json` にあります。読み取り系の Git コマンドと検証コマンドをあらかじめ許可し、Claude がターンを終えるときに `Stop` hook でドキュメントの検証を実行します。
 - 個人用の上書き設定は `.claude/settings.local.json` か `CLAUDE.local.md` に書きます。どちらも Git の追跡対象外です。
-- プロジェクトのスキルはスラッシュコマンドで実行します。例: `/learning-note`
+- プロジェクトのスキルはスラッシュコマンドで実行します。たとえば `/learning-note` は日英の学習ノートを作成・更新します。詳しくは[手順](.claude/skills/learning-note/SKILL_jp.md)（[English](.claude/skills/learning-note/SKILL.md)）を参照してください。
 
 ## 検証
 
@@ -70,17 +70,13 @@ dev-lab/
   python3 scripts/check_docs.py --base origin/main
   ```
 
-- GitHub Actions は、push と PR のたびに同じ検証と BLOCKWAVE のテスト・ビルドを実行します（`.github/workflows/checks.yml`）。
+- GitHub Actions は、push と PR のたびに同じ検証を実行します（`.github/workflows/checks.yml`）。BLOCKWAVE のテスト・ビルドは `projects/blockwave/` かワークフローファイルが変更されたときだけ実行し、それ以外ではそのジョブをスキップします。
 
 ## AI 学習ガイド
 
 - ローカル LLM の推論環境: [英語版](learning/ai/local_llm_environment.md)（[日本語版](learning/ai/local_llm_environment_jp.md)）— GPU・VRAM・帯域、RTX・DGX の具体例、推論エンジン、オープンウェイトモデル、導入例を解説します。
 - [AIエージェントのアーキテクチャ](learning/ai/agent_architecture_jp.md)（[英語](learning/ai/agent_architecture.md)）— 全体像の図から、各コンポーネントの実行環境・入出力・カスタマイズ機能へ進みます。図は本文内のMermaidで記述しています。
 
-## 学習ノートの Skill
-
-- [手順（英語）](.claude/skills/learning-note/SKILL.md)（[日本語](.claude/skills/learning-note/SKILL_jp.md)）
-
 ## プロジェクト
 
-- [BLOCKWAVE](projects/blockwave/README_jp.md)（[English](projects/blockwave/README.md)）— 共通エンジン、タッチ操作、自動テストを備えた、ブラウザとターミナルで遊べるTypeScriptのテトリスゲームです。
+- [BLOCKWAVE](projects/blockwave/README_jp.md)（[English](projects/blockwave/README.md)）— 共通エンジン、タッチ操作、自動テストを備えた、ブラウザとターミナルで遊べるTypeScriptの落ち物パズルゲームです。
