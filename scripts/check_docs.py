@@ -4,7 +4,8 @@
 Checks:
   1. Every authored Markdown file has its language pair (X.md <-> X_jp.md).
   2. Each file of a pair links to the other.
-  3. Relative links and images point to files that exist.
+  3. Relative links and images point to files that exist, including
+     reference-style link definitions such as `[id]: path/to/file.md`.
   4. With --base REF: a document changed since REF has its pair changed too.
 
 Usage:
@@ -32,6 +33,9 @@ ROOT = Path(__file__).resolve().parent.parent
 UNPAIRED = {"CLAUDE.local.md"}
 
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
+# Reference-style definition: up to three spaces, [label]:, then the target.
+# Footnote definitions ([^1]: text) are not links and are excluded.
+REF_DEF_RE = re.compile(r"^ {0,3}\[(?!\^)[^\]]+\]:\s*<?([^\s>]+)>?")
 SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*:")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 INLINE_CODE_RE = re.compile(r"`[^`]*`")
@@ -64,6 +68,10 @@ def links_in(path: str) -> list[str]:
             in_fence = not in_fence
             continue
         if in_fence:
+            continue
+        ref = REF_DEF_RE.match(line)
+        if ref:
+            targets.append(ref.group(1))
             continue
         targets.extend(LINK_RE.findall(INLINE_CODE_RE.sub("", line)))
     return targets
